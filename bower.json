@@ -16,5 +16,8 @@
   ],
   "license": "MIT",
   "homepage": "http://www.vivelohoy.com/",
-  "private": true
+  "private": true,
+  "dependencies": {
+    "DataTables": "~1.10.4"
+  }
 }

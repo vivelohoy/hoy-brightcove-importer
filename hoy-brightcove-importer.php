@@ -306,7 +306,8 @@ function hoy_brightcove_importer_import_video( $video ) {
         'category'          => 'Video',
         'author_username'   => 'brightcove',
         'status'            => 'draft',
-        'post_type'         => 'post'
+        'post_type'         => 'post',
+        'format'            => 'video'
     );
 
     $video_id = $video['id'];
@@ -360,6 +361,8 @@ function hoy_brightcove_importer_import_video( $video ) {
         set_post_thumbnail( $post_id, $video_still_attach_id );
 
         update_post_meta( $post_id, '_brightcove_video_id', $video_id );
+
+        set_post_format( $post_id, $defaults['format'] );
     } 
     else {
         return false;

@@ -327,6 +327,13 @@ function hoy_brightcove_importer_import_video( $video ) {
     $video_cat = get_term_by( 'name', $defaults['category'], 'category' );
     $post_category = array( $video_cat->term_id );
 
+/*
+Inserting additional categories based on Brightcove tags. This is not how it works exactly, since
+wp_insert_post expects the 'post_category' field to be an array of category IDs not category names.
+
+http://codex.wordpress.org/Function_Reference/wp_insert_post
+http://codex.wordpress.org/Function_Reference/wp_set_post_terms
+
     // Additional WordPress categories can be specified in the Brightcove tags
     foreach( $tags_input as $index => $tag ) {
         $tag_lowercase = strtolower( $tag );
@@ -336,6 +343,7 @@ function hoy_brightcove_importer_import_video( $video ) {
             }
         }
     }
+*/
 
     $video_user = get_user_by( 'login', $defaults['author_username'] );
     $post_author = $video_user->ID;

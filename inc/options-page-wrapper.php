@@ -10,7 +10,7 @@
 					<div class="postbox">
 						<div class="inside">
 							<h3>Current Options</h3>
-							<pre><?php var_dump( $options ); ?></pre>
+							<pre style="display: none;"><?php var_dump( $options ); ?></pre>
 
 							<form name="hoy_brightcove_importer_reset_options_form" method="post" action="">
 								<input type="hidden" name="hoy_brightcove_importer_reset_options_form_submitted" value="Y">

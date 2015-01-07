@@ -48,11 +48,16 @@ function hoy_brightcove_importer_menu() {
         'Hoy Brightcove Importer',
         'manage_options',
         'hoy-brightcove-importer',
-        'hoy_brightcove_importer_options_page2' 
+        'hoy_brightcove_importer_options_page'
     );
 
 }
 add_action( 'admin_menu', 'hoy_brightcove_importer_menu' );
+
+/*
+Experimenting here with the WP Settings API
+http://ottopress.com/2009/wordpress-settings-api-tutorial/
+
 
 function hoy_brightcove_importer_options_page() {
 ?>
@@ -80,7 +85,9 @@ function plugin_section_text() {
     echo '<p>' . __( 'Main description of this section here.' ) . '</p>';
 }
 
-function hoy_brightcove_importer_options_page2() {
+*/
+
+function hoy_brightcove_importer_options_page() {
 
     if( !current_user_can( 'manage_options') ) {
         wp_die( 'You do not have sufficient permission to access this page.' );

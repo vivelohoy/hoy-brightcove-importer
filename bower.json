@@ -1,0 +1,20 @@
+{
+  "name": "hoy-brightcove-importer",
+  "version": "0.1.0",
+  "authors": [
+    "Nick Bennett <nbennett@vivelohoy.com>"
+  ],
+  "description": "WordPress plugin that imports videos from the Brightcove Media API and creates individual posts.",
+  "main": "hoy-brightcove-importer.php",
+  "keywords": [
+    "wordpress",
+    "php",
+    "wp",
+    "brightcove",
+    "hoy",
+    "import"
+  ],
+  "license": "MIT",
+  "homepage": "http://www.vivelohoy.com/",
+  "private": true
+}

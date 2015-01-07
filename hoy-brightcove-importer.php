@@ -37,6 +37,17 @@ if( !defined( 'HOY_BRIGHTCOVE_IMPORTER_URL' ) ) {
 
 
 /*
+
+IIIII NN   NN TTTTTTT EEEEEEE RRRRRR  FFFFFFF   AAA    CCCCC  EEEEEEE
+ III  NNN  NN   TTT   EE      RR   RR FF       AAAAA  CC    C EE
+ III  NN N NN   TTT   EEEEE   RRRRRR  FFFF    AA   AA CC      EEEEE
+ III  NN  NNN   TTT   EE      RR  RR  FF      AAAAAAA CC    C EE
+IIIII NN   NN   TTT   EEEEEEE RR   RR FF      AA   AA  CCCCC  EEEEEEE
+
+
+*/
+
+/*
  * Add a link to our plugin in the admin menu
  * under Settings > Hoy Brightcove Importer
  */
@@ -158,6 +169,16 @@ function hoy_brightcove_importer_options_page() {
 
 }
 
+/*
+
+BBBBB   RRRRRR  IIIII   GGGG  HH   HH TTTTTTT  CCCCC   OOOOO  VV     VV EEEEEEE
+BB   B  RR   RR  III   GG  GG HH   HH   TTT   CC    C OO   OO VV     VV EE
+BBBBBB  RRRRRR   III  GG      HHHHHHH   TTT   CC      OO   OO  VV   VV  EEEEE
+BB   BB RR  RR   III  GG   GG HH   HH   TTT   CC    C OO   OO   VV VV   EE
+BBBBBB  RR   RR IIIII  GGGGGG HH   HH   TTT    CCCCC   OOOO0     VVV    EEEEEEE
+
+
+*/
 
 function hoy_brightcove_importer_get_videos( $hoy_brightcove_importer_api_key ) {
 
@@ -232,6 +253,16 @@ function hoy_brightcove_importer_fetch_new_videos() {
 
 }
 
+/*
+
+ SSSSS  HH   HH  OOOOO  RRRRRR  TTTTTTT  CCCCC   OOOOO  DDDDD   EEEEEEE
+SS      HH   HH OO   OO RR   RR   TTT   CC    C OO   OO DD  DD  EE
+ SSSSS  HHHHHHH OO   OO RRRRRR    TTT   CC      OO   OO DD   DD EEEEE
+     SS HH   HH OO   OO RR  RR    TTT   CC    C OO   OO DD   DD EE
+ SSSSS  HH   HH  OOOO0  RR   RR   TTT    CCCCC   OOOO0  DDDDDD  EEEEEEE
+
+
+*/
 
 function brightcove_video_shortcode( $atts ) {
     if( array_key_exists( 'id', $atts ) ) {
@@ -256,6 +287,17 @@ function brightcove_video_shortcode( $atts ) {
 }
 add_shortcode( 'brightcove', 'brightcove_video_shortcode' );
 
+
+/*
+
+IIIII MM    MM PPPPPP   OOOOO  RRRRRR  TTTTTTT
+ III  MMM  MMM PP   PP OO   OO RR   RR   TTT
+ III  MM MM MM PPPPPP  OO   OO RRRRRR    TTT
+ III  MM    MM PP      OO   OO RR  RR    TTT
+IIIII MM    MM PP       OOOO0  RR   RR   TTT
+
+
+*/
 
 function hoy_brightcove_importer_attach_image_to_post( $image_url, $post_id ) {
     $upload_dir = wp_upload_dir();
@@ -406,14 +448,36 @@ function hoy_brightcove_importer_import_new_videos() {
 
 }
 
+/*
 
+ SSSSS   CCCCC  HH   HH EEEEEEE DDDDD   UU   UU LL      IIIII NN   NN   GGGG
+SS      CC    C HH   HH EE      DD  DD  UU   UU LL       III  NNN  NN  GG  GG
+ SSSSS  CC      HHHHHHH EEEEE   DD   DD UU   UU LL       III  NN N NN GG
+     SS CC    C HH   HH EE      DD   DD UU   UU LL       III  NN  NNN GG   GG
+ SSSSS   CCCCC  HH   HH EEEEEEE DDDDDD   UUUUU  LLLLLLL IIIII NN   NN  GGGGGG
+
+
+ww      ww pp pp            cccc rr rr   oooo  nn nnn
+ww      ww ppp  pp _____  cc     rrr  r oo  oo nnn  nn
+ ww ww ww  pppppp         cc     rr     oo  oo nn   nn
+  ww  ww   pp              ccccc rr      oooo  nn   nn
+           pp
+
+*/
 function hoy_brightcove_importer_cron_exec() {
 
     hoy_brightcove_importer_fetch_new_videos();
-//    hoy_brightcove_importer_import_new_videos();
+    hoy_brightcove_importer_import_new_videos();
 
 }
 add_action( 'hoy_brightcove_importer_cron_hook', 'hoy_brightcove_importer_cron_exec' );
+
+/*
+
+Scheduling this to be done on a regular basis with wp-cron.
+https://developer.wordpress.org/plugins/cron/understanding-wp-cron-scheduling/
+
+*/
 if( !wp_next_scheduled( 'hoy_brightcove_importer_cron_hook' ) ) {
     wp_schedule_event( time(), 'hourly', 'hoy_brightcove_importer_cron_hook' );
 }
@@ -424,6 +488,16 @@ function hoy_brightcove_importer_deactivate() {
     wp_unschedule_event( $timestamp, 'hoy_brightcove_importer_cron_hook' );
 }
 
+/*
+
+IIIII NN   NN IIIII TTTTTTT
+ III  NNN  NN  III    TTT
+ III  NN N NN  III    TTT
+ III  NN  NNN  III    TTT
+IIIII NN   NN IIIII   TTT
+
+
+*/
 
 function hoy_brightcove_importer_styles() {
 

@@ -6,7 +6,7 @@
  * Version: 1.0.0
  * Author: Nick Bennett
  * Author URI: http://twitter.com/yoyoohrho
- * License: GPL2
+ * License: MIT
  */
 
 /*

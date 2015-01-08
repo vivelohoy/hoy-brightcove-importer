@@ -268,7 +268,7 @@ SS      HH   HH OO   OO RR   RR   TTT   CC    C OO   OO DD  DD  EE
 */
 
 function brightcove_video_shortcode( $atts ) {
-    if( array_key_exists( 'id', $atts ) ) {
+    if( array_key_exists( 'id', $atts ) && $atts['id'] ) {
         $atts = shortcode_atts( 
                 array( 
                     'width'         => 853,

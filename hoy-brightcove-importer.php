@@ -271,16 +271,20 @@ function brightcove_video_shortcode( $atts ) {
     if( array_key_exists( 'id', $atts ) ) {
         $atts = shortcode_atts( 
                 array( 
-                    'width'     => 853,
-                    'height'    => 480,
-                    'id'        => false
+                    'width'         => 853,
+                    'height'        => 480,
+                    'id'            => false,
+                    'player_id'     => 2027711527001,
+                    'player_key'    => 'AQ~~,AAAB2Ejp1kE~,qYgZ7QVyRmCflxEtsSSb7N6jXd3aEUNg'
                 ),
                 $atts );
 
         $context = Timber::get_context();
         $options = array(   'VIDEO_WIDTH'       => $atts['width'],
                             'VIDEO_HEIGHT'      => $atts['height'],
-                            'VIDEO_ID'          => $atts['id'] );
+                            'VIDEO_ID'          => $atts['id'],
+                            'PLAYER_ID'         => $atts['player_id'],
+                            'PLAYER_KEY'        => $atts['player_key'] );
         $context = array_merge( $context, $options );
 
         return Timber::compile('inc/default-post-template.twig', $context);

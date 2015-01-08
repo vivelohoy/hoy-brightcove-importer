@@ -27,6 +27,7 @@ $tags_to_categories = array(
         'contenido humano' => 'Contenido Humano',
         'lo mas visto en la red' => 'Lo mas visto en la red'
     );
+$ready_to_publish_tag = 'ready';
 
 if( !defined( 'HOY_BRIGHTCOVE_IMPORTER_DIR' ) ) {
     define('HOY_BRIGHTCOVE_IMPORTER_DIR', dirname( __FILE__ ) ); // plugin dir
@@ -183,13 +184,15 @@ BBBBBB  RR   RR IIIII  GGGGGG HH   HH   TTT    CCCCC   OOOO0     VVV    EEEEEEE
 function hoy_brightcove_importer_get_videos( $hoy_brightcove_importer_api_key ) {
 
     function get_paged_api_results( $hoy_brightcove_importer_api_key, $page_number ) {
+        global $ready_to_publish_tag;
+
         $query_string = http_build_query( array(
             'command' => 'search_videos',
             'token' => $hoy_brightcove_importer_api_key,
             'page_size' => 50,
             'page_number' => $page_number,
             'get_item_count' => 'true',
-            'any' => 'tag:ready'
+            'any' => 'tag:' . $ready_to_publish_tag
             ) );
         $json_feed_url = 'http://api.brightcove.com/services/library?' . $query_string;
         $args = array( 'timeout' => 120 );
@@ -341,6 +344,7 @@ function hoy_brightcove_importer_import_video( $video ) {
 
     */
     global $tags_to_categories;
+    global $ready_to_publish_tag;
 
     $defaults = array(
         'width'             => 853,
@@ -365,6 +369,8 @@ function hoy_brightcove_importer_import_video( $video ) {
                 $defaults['height'] );
 
     $tags_input = $video['tags'];
+    // Filter out the tag indicating the item is ready to publish
+    $tags_input = array_merge( array_diff( $tags_input, array( $ready_to_publish_tag ) ) );
 
     $video_cat = get_term_by( 'name', $defaults['category'], 'category' );
     $post_category = array( $video_cat->term_id );

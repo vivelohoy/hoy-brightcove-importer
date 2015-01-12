@@ -16,11 +16,15 @@ found at https://accounts.brightcove.com/en/terms-and-conditions/.
   <param name="isUI" value="true" />
   <param name="dynamicStreaming" value="true" />
   <param name="@videoPlayer" value="{{ VIDEO_ID }}" />
+  <param name="linkBaseURL" value="http://vivelohoy.com/" />
 </object>
 <!-- 
 This script tag will cause the Brightcove Players defined above it to be created as soon
 as the line is read by the browser. If you wish to have the player instantiated only after
 the rest of the HTML is processed and the page load is complete, remove the line.
 -->
-<script type="text/javascript">brightcove.createExperiences();</script>
+<script type="text/javascript">
+document.querySelector('param[name=linkBaseURL]').value = document.location.href;
+brightcove.createExperiences();
+</script>
 <!-- End of Brightcove Player -->

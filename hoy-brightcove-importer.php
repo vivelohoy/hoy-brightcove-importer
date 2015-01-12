@@ -27,7 +27,16 @@ $tags_to_categories = array(
         'contenido humano' => 'Contenido Humano',
         'lo mas visto en la red' => 'Lo mas visto en la red'
     );
-$ready_to_publish_tag = 'listo';
+
+$default_ready_to_publish_tag = 'listo';
+
+$brightcove_embed_defaults = array(
+        'width'         => 853,
+        'height'        => 480,
+        'id'            => false,
+        'player_id'     => 2027711527001,
+        'player_key'    => 'AQ~~,AAAB2Ejp1kE~,qYgZ7QVyRmCflxEtsSSb7N6jXd3aEUNg'
+    );
 
 if( !defined( 'HOY_BRIGHTCOVE_IMPORTER_DIR' ) ) {
     define('HOY_BRIGHTCOVE_IMPORTER_DIR', dirname( __FILE__ ) ); // plugin dir
@@ -107,6 +116,7 @@ function hoy_brightcove_importer_options_page() {
 
     global $options;
     global $display_json;
+    global $default_ready_to_publish_tag;
 
     if( isset( $_POST['hoy_brightcove_importer_reset_options_form_submitted'] ) ) {
         $hidden_field = esc_html( $_POST['hoy_brightcove_importer_reset_options_form_submitted'] );
@@ -157,12 +167,18 @@ function hoy_brightcove_importer_options_page() {
             $options['hoy_brightcove_importer_last_imported'] = false;
             update_option( 'hoy_brightcove_importer', $options );
         }
+        if( !array_key_exists( 'hoy_brightcove_importer_ready_tag', $options ) ||
+            '' == $options['hoy_brightcove_importer_ready_tag'] ) {
+            $options['hoy_brightcove_importer_ready_tag'] = $default_ready_to_publish_tag;
+            update_option( 'hoy_brightcove_importer', $options );
+        }
 
         $hoy_brightcove_importer_api_key = $options['hoy_brightcove_importer_api_key'];
         $hoy_brightcove_importer_imported_videos = $options['hoy_brightcove_importer_imported_videos'];
         $hoy_brightcove_importer_new_videos = $options['hoy_brightcove_importer_new_videos'];
         $hoy_brightcove_importer_last_updated = $options['hoy_brightcove_importer_last_updated'];
         $hoy_brightcove_importer_last_imported = $options['hoy_brightcove_importer_last_imported'];
+        $hoy_brightcove_importer_ready_tag = $options['hoy_brightcove_importer_ready_tag'];
     }
 
 
@@ -184,7 +200,7 @@ BBBBBB  RR   RR IIIII  GGGGGG HH   HH   TTT    CCCCC   OOOO0     VVV    EEEEEEE
 function hoy_brightcove_importer_get_videos( $hoy_brightcove_importer_api_key ) {
 
     function get_paged_api_results( $hoy_brightcove_importer_api_key, $page_number ) {
-        global $ready_to_publish_tag;
+        $options = get_option( 'hoy_brightcove_importer' );
 
         $query_string = http_build_query( array(
             'command' => 'search_videos',
@@ -192,7 +208,7 @@ function hoy_brightcove_importer_get_videos( $hoy_brightcove_importer_api_key ) 
             'page_size' => 50,
             'page_number' => $page_number,
             'get_item_count' => 'true',
-            'any' => 'tag:' . $ready_to_publish_tag
+            'any' => 'tag:' . $options['hoy_brightcove_importer_ready_tag']
             ) );
         $json_feed_url = 'http://api.brightcove.com/services/library?' . $query_string;
         $args = array( 'timeout' => 120 );
@@ -269,15 +285,10 @@ SS      HH   HH OO   OO RR   RR   TTT   CC    C OO   OO DD  DD  EE
 
 function brightcove_video_shortcode( $atts ) {
     if( array_key_exists( 'id', $atts ) && $atts['id'] ) {
-        $atts = shortcode_atts( 
-                array( 
-                    'width'         => 853,
-                    'height'        => 480,
-                    'id'            => false,
-                    'player_id'     => 2027711527001,
-                    'player_key'    => 'AQ~~,AAAB2Ejp1kE~,qYgZ7QVyRmCflxEtsSSb7N6jXd3aEUNg'
-                ),
-                $atts );
+        $atts = shortcode_atts(
+                $brightcove_embed_defaults,
+                $atts
+            );
 
         $context = Timber::get_context();
         $options = array(   'VIDEO_WIDTH'       => $atts['width'],
@@ -348,7 +359,8 @@ function hoy_brightcove_importer_import_video( $video ) {
 
     */
     global $tags_to_categories;
-    global $ready_to_publish_tag;
+
+    $options = get_option( 'hoy_brightcove_importer' );
 
     $defaults = array(
         'width'             => 853,
@@ -374,7 +386,7 @@ function hoy_brightcove_importer_import_video( $video ) {
 
     $tags_input = $video['tags'];
     // Filter out the tag indicating the item is ready to publish
-    $tags_input = array_merge( array_diff( $tags_input, array( $ready_to_publish_tag ) ) );
+    $tags_input = array_merge( array_diff( $tags_input, array( $options['hoy_brightcove_importer_ready_tag'] ) ) );
 
     $video_cat = get_term_by( 'name', $defaults['category'], 'category' );
     $post_category = array( $video_cat->term_id );

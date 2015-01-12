@@ -10,6 +10,7 @@
 					<div class="postbox">
 						<div class="inside">
 							<h3>Current Options</h3>
+							<p><?php _e( 'Tag to use on Brightcove videos that are ready to publish', 'hoy-brightcove-importer' ); ?>: "<strong><?php _e( $hoy_brightcove_importer_ready_tag, 'hoy-brightcove-importer' ); ?></strong>"</p>
 							<pre style="display: none;"><?php var_dump( $options ); ?></pre>
 
 							<form name="hoy_brightcove_importer_reset_options_form" method="post" action="">

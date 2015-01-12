@@ -1,3 +1,6 @@
+<?php
+	date_default_timezone_set( 'America/Chicago' );
+?>
 <div class="wrap">
 	<div id="icon-options-general" class="icon32"></div>
 	<h2><?php _e( 'Hoy Brightcove Media Importer Plugin', 'hoy-brightcove-importer' ); ?></h2>
@@ -70,7 +73,12 @@
 						<h3>
 							<span><?php _e( 'New Brightcove Videos', 'hoy-brightcove-importer' ); ?> (<?php echo count( $hoy_brightcove_importer_new_videos ); ?>)</span>
 						</h3>
-						<span><?php _e( 'Last Update:', 'hoy-brightcove-importer' ); ?> <?php if( $hoy_brightcove_importer_last_updated == 0) { _e( 'Never', 'hoy-brightcove-importer' ); } else { echo date( 'r T', (int) $hoy_brightcove_importer_last_updated ); } ?></span>
+						<span><?php _e( 'Last Update:', 'hoy-brightcove-importer' ); ?> <?php
+							if( $hoy_brightcove_importer_last_updated == 0) {
+								_e( 'Never', 'hoy-brightcove-importer' );
+							} else {
+								echo date( 'r T', (int) $hoy_brightcove_importer_last_updated );
+							} ?></span>
 						<div class="inside">
 <?php if ( count( $hoy_brightcove_importer_new_videos ) > 0 ) : ?>
 							<table id="new_videos" class="display">
@@ -101,7 +109,12 @@
 						<h3>
 							<span><?php _e( 'Imported Brightcove Videos', 'hoy-brightcove-importer' ); ?> (<?php echo count( $hoy_brightcove_importer_imported_videos ); ?>)</span>
 						</h3>
-						<span><?php _e( 'Last Import:', 'hoy-brightcove-importer' ); ?> <?php if( $hoy_brightcove_importer_last_imported == 0) { _e( 'Never', 'hoy-brightcove-importer' ); } else { echo date( 'r T', (int) $hoy_brightcove_importer_last_imported ); } ?></span>
+						<span><?php _e( 'Last Import:', 'hoy-brightcove-importer' ); ?> <?php
+							if( $hoy_brightcove_importer_last_imported == 0) {
+								_e( 'Never', 'hoy-brightcove-importer' );
+							} else {
+								echo date( 'r T', (int) $hoy_brightcove_importer_last_imported );
+							} ?></span>
 						<div class="inside">
 <?php if ( count( $hoy_brightcove_importer_imported_videos ) > 0 ) : ?>
 							<table id="imported_videos" class="display">

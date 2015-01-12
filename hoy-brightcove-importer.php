@@ -27,7 +27,7 @@ $tags_to_categories = array(
         'contenido humano' => 'Contenido Humano',
         'lo mas visto en la red' => 'Lo mas visto en la red'
     );
-$ready_to_publish_tag = 'ready';
+$ready_to_publish_tag = 'listo';
 
 if( !defined( 'HOY_BRIGHTCOVE_IMPORTER_DIR' ) ) {
     define('HOY_BRIGHTCOVE_IMPORTER_DIR', dirname( __FILE__ ) ); // plugin dir

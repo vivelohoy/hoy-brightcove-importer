@@ -1,6 +1,6 @@
 <div class="wrap">
 	<div id="icon-options-general" class="icon32"></div>
-	<h2>Hoy Brightcove Media Importer Plugin</h2>
+	<h2><?php _e( 'Hoy Brightcove Media Importer Plugin', 'hoy-brightcove-importer' ); ?></h2>
 	
 	<div id="poststuff">
 		<div id="post-body" class="metabox-holder columns-2">
@@ -9,14 +9,22 @@
 				<div class="meta-box-sortables ui-sortable">
 					<div class="postbox">
 						<div class="inside">
-							<h3>Current Options</h3>
-							<p><?php _e( 'Tag to use on Brightcove videos that are ready to publish', 'hoy-brightcove-importer' ); ?>: "<strong><?php _e( $hoy_brightcove_importer_ready_tag, 'hoy-brightcove-importer' ); ?></strong>"</p>
+							<h3><?php _e( 'Current Options', 'hoy-brightcove-importer' ); ?></h3>
+							<p><?php _e( 'Tag to use on Brightcove videos that are ready to publish', 'hoy-brightcove-importer' ); ?>: "<strong><?php echo $hoy_brightcove_importer_ready_tag; ?></strong>"</p>
 							<pre style="display: none;"><?php var_dump( $options ); ?></pre>
 
 							<form name="hoy_brightcove_importer_reset_options_form" method="post" action="">
 								<input type="hidden" name="hoy_brightcove_importer_reset_options_form_submitted" value="Y">
 								<p>	
-									<?php submit_button( 'Reset Options', $type = 'delete', $name = 'hoy_brightcove_importer_reset_options_form_submit', $wrap = true, $other_attributes = null ); ?>
+									<?php
+										submit_button(
+												__( 'Reset Options', 'hoy-brightcove-importer' ),
+												$type = 'delete',
+												$name = 'hoy_brightcove_importer_reset_options_form_submit',
+												$wrap = true,
+												$other_attributes = null
+											);
+									?>
 								</p>
 							</form>
 						</div> <!-- .inside -->
@@ -24,7 +32,7 @@
 
 <?php if( !isset( $hoy_brightcove_importer_api_key ) || $hoy_brightcove_importer_api_key == '' ): ?>
 					<div class="postbox">
-						<h3><span>Let's get started!</span></h3>
+						<h3><span><?php _e( "Let's get started!", 'hoy-brightcove-importer' ); ?></span></h3>
 						<div class="inside">
 							<form name="hoy_brightcove_importer_api_key_form" method="post" action="">
 								<input type="hidden" name="hoy_brightcove_importer_api_key_form_submitted" value="Y">
@@ -67,18 +75,16 @@
 							<table id="new_videos" class="display">
 								<thead>
 									<tr>
-										<th>Video ID</th>
-										<th>Thumbnail</th>
-										<th>Name</th>
-										<th>Tags</th>
-										<th>Last Modified</th>
+										<th><?php _e( 'Video ID', 'hoy-brightcove-importer' ); ?></th>
+										<th><?php _e( 'Thumbnail', 'hoy-brightcove-importer' ); ?></th>
+										<th><?php _e( 'Name', 'hoy-brightcove-importer' ); ?></th>
+										<th><?php _e( 'Tags', 'hoy-brightcove-importer' ); ?></th>
+										<th><?php _e( 'Last Modified', 'hoy-brightcove-importer' ); ?></th>
 									</tr>
 								</thead>
 								<tbody>
 <?php for( $i = 0; $i < count( $hoy_brightcove_importer_new_videos ); $i++ ): ?>
-<?php 
-	$video = $hoy_brightcove_importer_new_videos[$i];
-?>
+<?php $video = $hoy_brightcove_importer_new_videos[$i]; ?>
 									<tr>
 										<td><?php echo $video['id']; ?></td>
 										<td><div style="max-width: 120px;"><img style="width: 100%;" src="<?php echo $video['thumbnailURL']; ?>"></div></td>
@@ -100,12 +106,12 @@
 							<table id="imported_videos" class="display">
 								<thead>
 									<tr>
-										<th>Video ID</th>
-										<th>Thumbnail</th>
-										<th>Name</th>
-										<th>Tags</th>
-										<th>Last Modified</th>
-										<th>Post ID</th>
+										<th><?php _e( 'Video ID', 'hoy-brightcove-importer' ); ?></th>
+										<th><?php _e( 'Thumbnail', 'hoy-brightcove-importer' ); ?></th>
+										<th><?php _e( 'Name', 'hoy-brightcove-importer' ); ?></th>
+										<th><?php _e( 'Tags', 'hoy-brightcove-importer' ); ?></th>
+										<th><?php _e( 'Last Modified', 'hoy-brightcove-importer' ); ?></th>
+										<th><?php _e( 'Post ID', 'hoy-brightcove-importer' ); ?></th>
 									</tr>
 								</thead>
 								<tbody>
@@ -124,7 +130,7 @@
 											<?php if ( $new_post ) : ?>
 												<a href="<?php echo get_permalink( $new_post['id'] ); ?>"><?php echo $new_post['id']; ?></a>
 											<?php else: ?>
-												Not imported!
+												<?php _e( 'Not imported!', 'hoy-brightcove-importer' ); ?>
 											<?php endif; ?>
 										</td>
 									</tr>
@@ -136,7 +142,7 @@
 					</div> <!-- .postbox -->
 <?php if( $display_json == true ): ?>
 					<div class="postbox">
-						<h3><span>JSON Feed</span></h3>
+						<h3><span><?php _e( 'JSON Feed', 'hoy-brightcove-importer' ); ?></span></h3>
 						<div class="inside">
 							<pre><code><?php var_dump( $hoy_brightcove_importer_videos ); ?></code></pre>
 						</div> <!-- .inside -->

@@ -11,6 +11,7 @@
 						<div class="inside">
 							<h3><?php _e( 'Current Options', 'hoy-brightcove-importer' ); ?></h3>
 							<p><?php _e( 'Tag to use on Brightcove videos that are ready to publish', 'hoy-brightcove-importer' ); ?>: "<strong><?php echo $hoy_brightcove_importer_ready_tag; ?></strong>"</p>
+							<p><?php _e( 'Default auto-import frequency interval', 'hoy-brightcove-importer' ); ?>: <?php echo $default_autoimport_frequency; ?></p>
 							<pre style="display: none;"><?php var_dump( $options ); ?></pre>
 
 							<form name="hoy_brightcove_importer_reset_options_form" method="post" action="">

@@ -38,6 +38,19 @@ $brightcove_embed_defaults = array(
         'player_key'    => 'AQ~~,AAAB2Ejp1kE~,qYgZ7QVyRmCflxEtsSSb7N6jXd3aEUNg'
     );
 
+/*
+
+This autoimport frequency is the keyword used by wp-cron to indicate how
+frequently it should be run. This is one of a limited set of keywords:
+hourly, twicedaily, and daily.
+
+More information here:
+https://developer.wordpress.org/plugins/cron/understanding-wp-cron-scheduling/
+
+*/
+$default_autoimport_frequency = 'hourly';
+
+
 if( !defined( 'HOY_BRIGHTCOVE_IMPORTER_DIR' ) ) {
     define('HOY_BRIGHTCOVE_IMPORTER_DIR', dirname( __FILE__ ) ); // plugin dir
 }
@@ -117,6 +130,7 @@ function hoy_brightcove_importer_options_page() {
     global $options;
     global $display_json;
     global $default_ready_to_publish_tag;
+    global $default_autoimport_frequency;
 
     if( isset( $_POST['hoy_brightcove_importer_reset_options_form_submitted'] ) ) {
         $hidden_field = esc_html( $_POST['hoy_brightcove_importer_reset_options_form_submitted'] );
@@ -501,7 +515,7 @@ https://developer.wordpress.org/plugins/cron/understanding-wp-cron-scheduling/
 
 */
 if( !wp_next_scheduled( 'hoy_brightcove_importer_cron_hook' ) ) {
-    wp_schedule_event( time(), 'hourly', 'hoy_brightcove_importer_cron_hook' );
+    wp_schedule_event( time(), $default_autoimport_frequency, 'hoy_brightcove_importer_cron_hook' );
 }
 
 register_deactivation_hook( __FILE__, 'hoy_brightcove_importer_deactivate' );

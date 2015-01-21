@@ -10,6 +10,87 @@
  */
 
 /*
+
+PPPPPP  RRRRRR  EEEEEEE        RRRRRR  EEEEEEE  QQQQQ
+PP   PP RR   RR EE             RR   RR EE      QQ   QQ
+PPPPPP  RRRRRR  EEEEE   _____  RRRRRR  EEEEE   QQ   QQ
+PP      RR  RR  EE             RR  RR  EE      QQ  QQ
+PP      RR   RR EEEEEEE        RR   RR EEEEEEE  QQQQ Q
+
+
+*/
+
+require_once( 'lib/class-tgm-plugin-activation.php' );
+
+add_action( 'tgmpa_register', 'hoy_brightcove_importer_register_required_plugins' );
+/**
+ * Register the required plugins for this theme.
+ *
+ * In this example, we register two plugins - one included with the TGMPA library
+ * and one from the .org repo.
+ *
+ * The variable passed to tgmpa_register_plugins() should be an array of plugin
+ * arrays.
+ *
+ * This function is hooked into tgmpa_init, which is fired within the
+ * TGM_Plugin_Activation class constructor.
+ */
+function hoy_brightcove_importer_register_required_plugins() {
+
+    $plugins = array(
+
+        array(
+            'name'               => 'WP Brightcove Shortcode Plugin', // The plugin name.
+            'slug'               => 'wp-brightcove-shortcode', // The plugin slug (typically the folder name).
+            'source'             => 'https://github.com/vivelohoy/wp-brightcove-shortcode/archive/0.1.0.zip', // The plugin source.
+            'required'           => true, // If false, the plugin is only 'recommended' instead of required.
+            'external_url'       => 'https://github.com/vivelohoy/wp-brightcove-shortcode', // If set, overrides default API URL and points to an external URL.
+        ),
+
+    );
+
+    /**
+     * Array of configuration settings. Amend each line as needed.
+     * If you want the default strings to be available under your own theme domain,
+     * leave the strings uncommented.
+     * Some of the strings are added into a sprintf, so see the comments at the
+     * end of each line for what each argument will be.
+     */
+    $config = array(
+        'default_path' => '',                      // Default absolute path to pre-packaged plugins.
+        'menu'         => 'tgmpa-install-plugins', // Menu slug.
+        'has_notices'  => true,                    // Show admin notices or not.
+        'dismissable'  => true,                    // If false, a user cannot dismiss the nag message.
+        'dismiss_msg'  => '',                      // If 'dismissable' is false, this message will be output at top of nag.
+        'is_automatic' => false,                   // Automatically activate plugins after installation or not.
+        'message'      => '',                      // Message to output right before the plugins table.
+        'strings'      => array(
+            'page_title'                      => __( 'Install Required Plugins', 'tgmpa' ),
+            'menu_title'                      => __( 'Install Plugins', 'tgmpa' ),
+            'installing'                      => __( 'Installing Plugin: %s', 'tgmpa' ), // %s = plugin name.
+            'oops'                            => __( 'Something went wrong with the plugin API.', 'tgmpa' ),
+            'notice_can_install_required'     => _n_noop( 'This theme requires the following plugin: %1$s.', 'This theme requires the following plugins: %1$s.' ), // %1$s = plugin name(s).
+            'notice_can_install_recommended'  => _n_noop( 'This theme recommends the following plugin: %1$s.', 'This theme recommends the following plugins: %1$s.' ), // %1$s = plugin name(s).
+            'notice_cannot_install'           => _n_noop( 'Sorry, but you do not have the correct permissions to install the %s plugin. Contact the administrator of this site for help on getting the plugin installed.', 'Sorry, but you do not have the correct permissions to install the %s plugins. Contact the administrator of this site for help on getting the plugins installed.' ), // %1$s = plugin name(s).
+            'notice_can_activate_required'    => _n_noop( 'The following required plugin is currently inactive: %1$s.', 'The following required plugins are currently inactive: %1$s.' ), // %1$s = plugin name(s).
+            'notice_can_activate_recommended' => _n_noop( 'The following recommended plugin is currently inactive: %1$s.', 'The following recommended plugins are currently inactive: %1$s.' ), // %1$s = plugin name(s).
+            'notice_cannot_activate'          => _n_noop( 'Sorry, but you do not have the correct permissions to activate the %s plugin. Contact the administrator of this site for help on getting the plugin activated.', 'Sorry, but you do not have the correct permissions to activate the %s plugins. Contact the administrator of this site for help on getting the plugins activated.' ), // %1$s = plugin name(s).
+            'notice_ask_to_update'            => _n_noop( 'The following plugin needs to be updated to its latest version to ensure maximum compatibility with this theme: %1$s.', 'The following plugins need to be updated to their latest version to ensure maximum compatibility with this theme: %1$s.' ), // %1$s = plugin name(s).
+            'notice_cannot_update'            => _n_noop( 'Sorry, but you do not have the correct permissions to update the %s plugin. Contact the administrator of this site for help on getting the plugin updated.', 'Sorry, but you do not have the correct permissions to update the %s plugins. Contact the administrator of this site for help on getting the plugins updated.' ), // %1$s = plugin name(s).
+            'install_link'                    => _n_noop( 'Begin installing plugin', 'Begin installing plugins' ),
+            'activate_link'                   => _n_noop( 'Begin activating plugin', 'Begin activating plugins' ),
+            'return'                          => __( 'Return to Required Plugins Installer', 'tgmpa' ),
+            'plugin_activated'                => __( 'Plugin activated successfully.', 'tgmpa' ),
+            'complete'                        => __( 'All plugins installed and activated successfully. %s', 'tgmpa' ), // %s = dashboard link.
+            'nag_type'                        => 'updated' // Determines admin notice type - can only be 'updated', 'update-nag' or 'error'.
+        )
+    );
+
+    tgmpa( $plugins, $config );
+
+}
+
+/*
  * Global variables
  */
 
@@ -88,38 +169,6 @@ function hoy_brightcove_importer_menu() {
 }
 add_action( 'admin_menu', 'hoy_brightcove_importer_menu' );
 
-/*
-Experimenting here with the WP Settings API
-http://ottopress.com/2009/wordpress-settings-api-tutorial/
-
-
-function hoy_brightcove_importer_options_page() {
-?>
-<div>
-    <h2>Hoy Brightcove Importer Plugin</h2>
-    Options related to the Hoy Brightcove Importer plugin.
-    <form action="options.php" method="post">
-        <?php settings_fields( 'plugin_options' ); ?>
-        <?php do_settings_sections( 'plugin' ); ?>
-
-        <input name="Submit" type="submit" value="<?php esc_attr_e( 'Save Changes' ); ?>" />
-    </form>
-</div>
-<?php
-}
-
-add_action( 'admin_init', 'hoy_brightcove_importer_admin_init' );
-function hoy_brightcove_importer_admin_init() {
-    register_setting( 'plugin_options', 'plugin_options', 'plugin_options_validate' );
-    add_settings_section( 'plugin_main', 'Main Settings', 'plugin_section_text', 'plugin' );
-    add_settings_field( 'plugin_text_string', 'Plugin Text Input', 'plugin_setting_string', 'plugin', 'plugin_main' );
-}
-
-function plugin_section_text() {
-    echo '<p>' . __( 'Main description of this section here.' ) . '</p>';
-}
-
-*/
 
 function hoy_brightcove_importer_options_page() {
 
@@ -285,41 +334,6 @@ function hoy_brightcove_importer_fetch_new_videos() {
     update_option( 'hoy_brightcove_importer', $options );
 
 }
-
-/*
-
- SSSSS  HH   HH  OOOOO  RRRRRR  TTTTTTT  CCCCC   OOOOO  DDDDD   EEEEEEE
-SS      HH   HH OO   OO RR   RR   TTT   CC    C OO   OO DD  DD  EE
- SSSSS  HHHHHHH OO   OO RRRRRR    TTT   CC      OO   OO DD   DD EEEEE
-     SS HH   HH OO   OO RR  RR    TTT   CC    C OO   OO DD   DD EE
- SSSSS  HH   HH  OOOO0  RR   RR   TTT    CCCCC   OOOO0  DDDDDD  EEEEEEE
-
-
-*/
-
-function brightcove_video_shortcode( $atts ) {
-    global $brightcove_embed_defaults;
-
-    if( array_key_exists( 'id', $atts ) && $atts['id'] ) {
-        $atts = shortcode_atts(
-                $brightcove_embed_defaults,
-                $atts
-            );
-
-        $context = Timber::get_context();
-        $options = array(   'VIDEO_WIDTH'       => $atts['width'],
-                            'VIDEO_HEIGHT'      => $atts['height'],
-                            'VIDEO_ID'          => $atts['id'],
-                            'PLAYER_ID'         => $atts['player_id'],
-                            'PLAYER_KEY'        => $atts['player_key'] );
-        $context = array_merge( $context, $options );
-
-        return Timber::compile('inc/default-post-template.twig', $context);
-    } else {
-        return '';
-    }
-}
-add_shortcode( 'brightcove', 'brightcove_video_shortcode' );
 
 
 /*

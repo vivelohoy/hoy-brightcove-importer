@@ -154,14 +154,6 @@
 <?php endif; ?><!-- // if ( count( $hoy_brightcove_importer_imported_videos ) > 0 ) -->
 						</div> <!-- .inside -->
 					</div> <!-- .postbox -->
-<?php if( $display_json == true ): ?>
-					<div class="postbox">
-						<h3><span><?php _e( 'JSON Feed', 'hoy-brightcove-importer' ); ?></span></h3>
-						<div class="inside">
-							<pre><code><?php var_dump( $hoy_brightcove_importer_videos ); ?></code></pre>
-						</div> <!-- .inside -->
-					</div> <!-- .postbox -->
-<?php endif; // if( $display_json ) ?>
 <?php endif; // if( !isset( $hoy_brightcove_importer_api_key ) ... ?>
 				</div> <!-- .meta-box-sortables .ui-sortable -->
 			</div> <!-- post-body-content -->

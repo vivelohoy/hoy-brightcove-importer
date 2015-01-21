@@ -95,7 +95,7 @@ function hoy_brightcove_importer_register_required_plugins() {
  */
 
 $options = array();
-$display_json = true;
+
 $tags_to_categories = array(
         'chicago' => 'Chicago',
         'deportes' => 'Deportes',

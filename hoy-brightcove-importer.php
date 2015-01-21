@@ -111,14 +111,6 @@ $tags_to_categories = array(
 
 $default_ready_to_publish_tag = 'listo';
 
-$brightcove_embed_defaults = array(
-        'width'         => 853,
-        'height'        => 480,
-        'id'            => false,
-        'player_id'     => 2027711527001,
-        'player_key'    => 'AQ~~,AAAB2Ejp1kE~,qYgZ7QVyRmCflxEtsSSb7N6jXd3aEUNg'
-    );
-
 /*
 
 This autoimport frequency is the keyword used by wp-cron to indicate how

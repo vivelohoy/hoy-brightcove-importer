@@ -42,8 +42,9 @@ function hoy_brightcove_importer_register_required_plugins() {
         array(
             'name'               => 'WP Brightcove Shortcode Plugin', // The plugin name.
             'slug'               => 'wp-brightcove-shortcode', // The plugin slug (typically the folder name).
-            'source'             => 'https://github.com/vivelohoy/wp-brightcove-shortcode/archive/0.1.0.zip', // The plugin source.
+            'source'             => 'https://github.com/vivelohoy/wp-brightcove-shortcode/archive/master.zip', // The plugin source.
             'required'           => true, // If false, the plugin is only 'recommended' instead of required.
+            'force_activation'   => true,
             'external_url'       => 'https://github.com/vivelohoy/wp-brightcove-shortcode', // If set, overrides default API URL and points to an external URL.
         ),
 

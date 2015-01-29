@@ -125,7 +125,8 @@
 										<th><?php _e( 'Name', 'hoy-brightcove-importer' ); ?></th>
 										<th><?php _e( 'Tags', 'hoy-brightcove-importer' ); ?></th>
 										<th><?php _e( 'Last Modified', 'hoy-brightcove-importer' ); ?></th>
-										<th><?php _e( 'Post ID', 'hoy-brightcove-importer' ); ?></th>
+										<th><?php _e( 'View', 'hoy-brightcove-importer' ); ?></th>
+										<th><?php _e( 'Edit', 'hoy-brightcove-importer' ); ?></th>
 									</tr>
 								</thead>
 								<tbody>
@@ -142,12 +143,18 @@
 										<td><?php echo date( 'c', (int) ( $video['lastModifiedDate'] / 1000.0 ) ); ?></td>
 										<td>
 											<?php if ( $new_post ) : ?>
-												<a href="<?php echo get_permalink( $new_post['id'] ); ?>"><?php echo $new_post['id']; ?></a>
+												<a href="<?php echo get_permalink( $new_post['id'] ); ?>"><?php _e( 'View', 'hoy-brightcove-importer' ); ?></a>
 											<?php else: ?>
 												<?php _e( 'Not imported!', 'hoy-brightcove-importer' ); ?>
 											<?php endif; ?>
 										</td>
-									</tr>
+										<td>
+											<?php if ( $new_post ) : ?>
+												<a href="<?php echo get_edit_post_link( $new_post['id'] ); ?>"><?php _e('Edit', 'hoy-brightcove-importer'); ?></a>
+											<?php else: ?>
+												<?php _e( 'Not imported!', 'hoy-brightcove-importer' ); ?>
+											<?php endif; ?>
+										</td>									</tr>
 <?php endfor; ?>
 								</tbody>
 							</table>

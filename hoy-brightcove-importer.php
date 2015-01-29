@@ -28,7 +28,16 @@ More information here:
 https://developer.wordpress.org/plugins/cron/understanding-wp-cron-scheduling/
 
 */
-$default_autoimport_frequency = 'hourly';
+function hoy_brightcove_importer_add_cron_interval( $schedules ) {
+    $schedules['five_minutes'] = array(
+            'interval'  => 300,
+            'display'   => esc_html__( 'Every Five Minutes' ),
+        );
+
+    return $schedules;
+}
+add_filter( 'cron_schedules', 'hoy_brightcove_importer_add_cron_interval' );
+$default_autoimport_frequency = 'five_minutes';
 
 
 if( !defined( 'HOY_BRIGHTCOVE_IMPORTER_DIR' ) ) {
@@ -458,6 +467,7 @@ Scheduling this to be done on a regular basis with wp-cron.
 https://developer.wordpress.org/plugins/cron/understanding-wp-cron-scheduling/
 
 */
+
 if( !wp_next_scheduled( 'hoy_brightcove_importer_cron_hook' ) ) {
     wp_schedule_event( time(), $default_autoimport_frequency, 'hoy_brightcove_importer_cron_hook' );
 }

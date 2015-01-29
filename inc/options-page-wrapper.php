@@ -15,6 +15,7 @@
 							<h3><?php _e( 'Current Options', 'hoy-brightcove-importer' ); ?></h3>
 							<p><?php _e( 'Tag to use on Brightcove videos that are ready to publish', 'hoy-brightcove-importer' ); ?>: "<strong><?php echo $hoy_brightcove_importer_ready_tag; ?></strong>"</p>
 							<p><?php _e( 'Default auto-import frequency interval', 'hoy-brightcove-importer' ); ?>: <?php echo $default_autoimport_frequency; ?></p>
+<?php if( current_user_can( 'manage_options' ) ): ?>
 							<pre style="display: none;"><?php var_dump( $options ); ?></pre>
 
 							<form name="hoy_brightcove_importer_reset_options_form" method="post" action="">
@@ -31,6 +32,7 @@
 									?>
 								</p>
 							</form>
+<?php endif; // if( current_user_can( 'manage_options' ) ): ?>
 						</div> <!-- .inside -->
 					</div> <!-- .postbox -->
 
@@ -58,6 +60,7 @@
 					</div> <!-- .postbox -->
 <?php else: ?>
 					<div class="postbox">
+						<div class="inside">
 						<form name="hoy_brightcove_importer_update_videos_form" method="post" action="">
 							<input type="hidden" name="hoy_brightcove_importer_update_videos_form_submitted" value="Y">
 							<p>	
@@ -79,7 +82,6 @@
 							} else {
 								echo date( 'r T', (int) $hoy_brightcove_importer_last_updated );
 							} ?></span>
-						<div class="inside">
 <?php if ( count( $hoy_brightcove_importer_new_videos ) > 0 ) : ?>
 							<table id="new_videos" class="display">
 								<thead>
@@ -105,7 +107,6 @@
 								</tbody>
 							</table>
 <?php endif; ?><!-- // if ( count( $hoy_brightcove_importer_new_videos ) > 0 ) -->
-						</div> <!-- .inside -->
 						<h3>
 							<span><?php _e( 'Imported Brightcove Videos', 'hoy-brightcove-importer' ); ?> (<?php echo count( $hoy_brightcove_importer_imported_videos ); ?>)</span>
 						</h3>
@@ -115,7 +116,6 @@
 							} else {
 								echo date( 'r T', (int) $hoy_brightcove_importer_last_imported );
 							} ?></span>
-						<div class="inside">
 <?php if ( count( $hoy_brightcove_importer_imported_videos ) > 0 ) : ?>
 							<table id="imported_videos" class="display">
 								<thead>
@@ -157,6 +157,7 @@
 <?php endif; // if( !isset( $hoy_brightcove_importer_api_key ) ... ?>
 				</div> <!-- .meta-box-sortables .ui-sortable -->
 			</div> <!-- post-body-content -->
+<?php if( current_user_can( 'manage_options' ) ): ?>
 			<!-- sidebar -->
 			<div id="postbox-container-1" class="postbox-container">
 				<div class="meta-box-sortables">
@@ -176,9 +177,10 @@
 							</form>
 						</div> <!-- .inside -->
 					</div> <!-- .postbox -->
-<?php endif; // if( isset( $hoy_brightcove_importer_api_key ) ... ?>	
+<?php endif; // if( isset( $hoy_brightcove_importer_api_key ) ... ?>
 				</div> <!-- .meta-box-sortables -->
 			</div> <!-- #postbox-container-1 .postbox-container -->
+<?php endif; // if( current_user_can( 'manage_options' ) ) ?>
 		</div> <!-- #post-body .metabox-holder .columns-2 -->
 		<br class="clear">
 	</div> <!-- #poststuff -->

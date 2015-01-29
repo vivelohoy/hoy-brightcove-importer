@@ -133,6 +133,54 @@ if( !defined( 'HOY_BRIGHTCOVE_IMPORTER_URL' ) ) {
 }
 
 
+
+register_uninstall_hook( __FILE__, 'hoy_brightcove_importer_uninstall' );
+register_deactivation_hook( __FILE__, 'hoy_brightcove_importer_deactivation' );
+register_activation_hook( __FILE__, 'hoy_brightcove_importer_activation' );
+add_action( 'admin_menu', 'hoy_brightcove_importer_menu' );
+
+
+function hoy_brightcove_importer_uninstall() {
+    delete_option( 'hoy_brightcove_importer' );
+
+    // Remove capabilities
+    global $wp_roles;
+    $wp_roles->remove_cap( 'administrator', 'manage_brightcove_importer_options' );
+    $wp_roles->remove_cap( 'editor', 'manage_brightcove_importer_options' );
+}
+
+function hoy_brightcove_importer_deactivation() {
+//    delete_option( 'hoy_brightcove_importer' );
+
+    // Remove capabilities
+    global $wp_roles;
+    $wp_roles->remove_cap( 'administrator', 'manage_brightcove_importer_options' );
+    $wp_roles->remove_cap( 'editor', 'manage_brightcove_importer_options' );
+}
+
+function hoy_brightcove_importer_activation() {
+    // Define default option settings
+    $tmp = get_option( 'hoy_brightcove_importer' );
+    if( !is_array( $tmp ) ) {
+        delete_option( 'hoy_brightcove_importer' );
+
+        $arr = array(
+            'hoy_brightcove_importer_imported_videos'   => array(),
+            'hoy_brightcove_importer_new_videos'        => array(),
+            'hoy_brightcove_importer_last_updated'      => false,
+            'hoy_brightcove_importer_last_imported'     => false,
+            'hoy_brightcove_importer_ready_tag'         => $default_ready_to_publish_tag
+        );
+        update_option( 'hoy_brightcove_importer', $arr );
+    }
+
+    // Add capabilities
+    global $wp_roles;
+    $wp_roles->add_cap( 'administrator', 'manage_brightcove_importer_options' );
+    $wp_roles->add_cap( 'editor', 'manage_brightcove_importer_options' );
+}
+
+
 /*
 
 IIIII NN   NN TTTTTTT EEEEEEE RRRRRR  FFFFFFF   AAA    CCCCC  EEEEEEE
@@ -154,18 +202,17 @@ function hoy_brightcove_importer_menu() {
     add_options_page(
         'Hoy Brightcove Importer Plugin',
         'Hoy Brightcove Importer',
-        'manage_options',
+        'manage_brightcove_importer_options',
         'hoy-brightcove-importer',
         'hoy_brightcove_importer_options_page'
     );
 
 }
-add_action( 'admin_menu', 'hoy_brightcove_importer_menu' );
 
 
 function hoy_brightcove_importer_options_page() {
 
-    if( !current_user_can( 'manage_options') ) {
+    if( !current_user_can( 'manage_brightcove_importer_options' ) ) {
         wp_die( 'You do not have sufficient permission to access this page.' );
     }
 

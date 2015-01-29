@@ -202,14 +202,14 @@ This little chunk of jQuery adds a toggle button to all <pre></pre> blocks and h
 			$(this).before($button);
 		});
 
-		// column index 3 (4th column) is Date and we want newest on top
+		// column index 4 (5th column) is Date and we want newest on top
 		$('#new_videos').DataTable({
-			"order": [ [ 3, 'desc' ] ]
+			"order": [ [ 4, 'desc' ] ]
 		});
 
-		// column index 3 (4th column) is Date and we want newest on top
+		// column index 4 (5th column) is Date and we want newest on top
 		$('#imported_videos').DataTable({
-			"order": [ [ 3, 'desc' ] ]
+			"order": [ [ 4, 'desc' ] ]
 		});
 	});
 })(jQuery);

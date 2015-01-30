@@ -9,13 +9,6 @@
  * License: MIT
  */
 
-
-/*
- * Global variables
- */
-
-$default_ready_to_publish_tag = 'listo';
-
 /*
 
 This autoimport frequency is the keyword used by wp-cron to indicate how
@@ -78,11 +71,12 @@ function hoy_brightcove_importer_activation() {
         delete_option( 'hoy_brightcove_importer' );
 
         $arr = array(
+            'hoy_brightcove_importer_api_key'           => '',
             'hoy_brightcove_importer_imported_videos'   => array(),
             'hoy_brightcove_importer_new_videos'        => array(),
             'hoy_brightcove_importer_last_updated'      => false,
             'hoy_brightcove_importer_last_imported'     => false,
-            'hoy_brightcove_importer_ready_tag'         => $default_ready_to_publish_tag
+            'hoy_brightcove_importer_ready_tag'         => 'listo'
         );
         update_option( 'hoy_brightcove_importer', $arr );
     }
@@ -130,7 +124,6 @@ function hoy_brightcove_importer_options_page() {
     }
 
     global $display_json;
-    global $default_ready_to_publish_tag;
     global $default_autoimport_frequency;
 
     $options = get_option( 'hoy_brightcove_importer' );
@@ -167,28 +160,6 @@ function hoy_brightcove_importer_options_page() {
     }
 
     if( $options != '' ) {
-        if( !array_key_exists( 'hoy_brightcove_importer_imported_videos', $options ) ) {
-            $options['hoy_brightcove_importer_imported_videos'] = array();
-            update_option( 'hoy_brightcove_importer', $options );
-        }
-        if( !array_key_exists( 'hoy_brightcove_importer_new_videos', $options ) ) {
-            $options['hoy_brightcove_importer_new_videos'] = array();
-            update_option( 'hoy_brightcove_importer', $options );
-        }
-        if( !array_key_exists( 'hoy_brightcove_importer_last_updated', $options ) ) {
-            $options['hoy_brightcove_importer_last_updated'] = false;
-            update_option( 'hoy_brightcove_importer', $options );
-        }
-        if( !array_key_exists( 'hoy_brightcove_importer_last_imported', $options ) ) {
-            $options['hoy_brightcove_importer_last_imported'] = false;
-            update_option( 'hoy_brightcove_importer', $options );
-        }
-        if( !array_key_exists( 'hoy_brightcove_importer_ready_tag', $options ) ||
-            '' == $options['hoy_brightcove_importer_ready_tag'] ) {
-            $options['hoy_brightcove_importer_ready_tag'] = $default_ready_to_publish_tag;
-            update_option( 'hoy_brightcove_importer', $options );
-        }
-
         $hoy_brightcove_importer_api_key = $options['hoy_brightcove_importer_api_key'];
         $hoy_brightcove_importer_imported_videos = $options['hoy_brightcove_importer_imported_videos'];
         $hoy_brightcove_importer_new_videos = $options['hoy_brightcove_importer_new_videos'];

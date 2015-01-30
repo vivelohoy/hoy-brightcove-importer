@@ -14,8 +14,6 @@
  * Global variables
  */
 
-$options = array();
-
 $default_ready_to_publish_tag = 'listo';
 
 /*
@@ -131,10 +129,11 @@ function hoy_brightcove_importer_options_page() {
         wp_die( 'You do not have sufficient permission to access this page.' );
     }
 
-    global $options;
     global $display_json;
     global $default_ready_to_publish_tag;
     global $default_autoimport_frequency;
+
+    $options = get_option( 'hoy_brightcove_importer' );
 
     if( isset( $_POST['hoy_brightcove_importer_reset_options_form_submitted'] ) ) {
         $hidden_field = esc_html( $_POST['hoy_brightcove_importer_reset_options_form_submitted'] );
@@ -167,7 +166,6 @@ function hoy_brightcove_importer_options_page() {
         }
     }
 
-    $options = get_option( 'hoy_brightcove_importer' );
     if( $options != '' ) {
         if( !array_key_exists( 'hoy_brightcove_importer_imported_videos', $options ) ) {
             $options['hoy_brightcove_importer_imported_videos'] = array();

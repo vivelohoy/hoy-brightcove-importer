@@ -312,8 +312,6 @@ function hoy_brightcove_importer_import_video( $video ) {
         of the new post ID.
 
     */
-    global $tags_to_categories;
-
     $options = get_option( 'hoy_brightcove_importer' );
 
     $defaults = array(

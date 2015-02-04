@@ -222,23 +222,15 @@ $video = $imported_videos[$i]['video'];
 $new_post = $imported_videos[$i]['post'];
 ?>
                     <tr>
-                        <td><div style="max-width: 120px;"><img style="width: 100%;" src="<?php echo $video['thumbnailURL']; ?>"></div></td>
+                        <td><?php echo get_the_post_thumbnail( $new_post['id'], 'thumbnail' ); ?></td>
                         <td><?php echo $video['name']; ?></td>
                         <td><?php echo implode( ', ', $video['tags'] ); ?></td>
                         <td><?php echo date( 'c', (int) ( $video['lastModifiedDate'] / 1000.0 ) ); ?></td>
                         <td>
-                            <?php if ( $new_post ) : ?>
-                                <a href="<?php echo get_permalink( $new_post['id'] ); ?>"><?php _e( 'View', 'hoy-brightcove-importer' ); ?></a>
-                            <?php else: ?>
-                                <?php _e( 'Not imported!', 'hoy-brightcove-importer' ); ?>
-                            <?php endif; ?>
+                            <a href="<?php echo get_permalink( $new_post['id'] ); ?>"><?php _e( 'View', 'hoy-brightcove-importer' ); ?></a>
                         </td>
                         <td>
-                            <?php if ( $new_post ) : ?>
-                                <a href="<?php echo get_edit_post_link( $new_post['id'] ); ?>"><?php _e('Edit', 'hoy-brightcove-importer'); ?></a>
-                            <?php else: ?>
-                                <?php _e( 'Not imported!', 'hoy-brightcove-importer' ); ?>
-                            <?php endif; ?>
+                            <a href="<?php echo get_edit_post_link( $new_post['id'] ); ?>"><?php _e('Edit', 'hoy-brightcove-importer'); ?></a>
                         </td>
                     </tr>
 <?php endfor; ?>

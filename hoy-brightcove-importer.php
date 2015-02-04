@@ -3,7 +3,7 @@
  * Plugin Name: Hoy Brightcove Importer Plugin
  * Plugin URI: http://vivelohoy.com/
  * Description: Imports Brightcove videos as individual posts.
- * Version: 1.0.0
+ * Version: 1.1.0
  * Author: Nick Bennett
  * Author URI: http://twitter.com/yoyoohrho
  * License: MIT
@@ -192,6 +192,11 @@ add_action( 'admin_head', 'hoy_brightcove_importer_styles' );
 
 function hoy_brightcove_importer_init() {
     load_plugin_textdomain( 'hoy-brightcove-importer', false, dirname( plugin_basename( __FILE__ ) ) . '/languages' );
+
+    // Process the interactions with the user-level admin page
+    add_action( 'admin_post_process_hoy_brightcove_importer_admin', 'process_hoy_brightcove_importer_admin' );
+    // Process the interactions with the admin-level options page
+    add_action( 'admin_post_save_hoy_brightcove_importer_options', 'process_hoy_brightcove_importer_options' );
 }
 add_action( 'init', 'hoy_brightcove_importer_init' );
 
@@ -207,75 +212,184 @@ IIIII NN   NN   TTT   EEEEEEE RR   RR FF      AA   AA  CCCCC  EEEEEEE
 
 */
 
-/*
- * Add a link to our plugin in the admin menu
- * under Settings > Hoy Brightcove Importer
- */
 
 function hoy_brightcove_importer_menu() {
-    add_options_page(
-        'Hoy Brightcove Importer Plugin',
+    add_menu_page(
+        'Hoy Brightcove Importer Administration Page',
         'Hoy Brightcove Importer',
         'manage_brightcove_importer_options',
-        'hoy-brightcove-importer',
-        'hoy_brightcove_importer_options_page'
+        'hoy-brightcove-importer-main-menu',
+        'hoy_brightcove_importer_main'
+    );
+
+    add_submenu_page(
+        'hoy-brightcove-importer-main-menu',
+        'Hoy Brightcove Importer Options',
+        'Options',
+        'manage_brightcove_importer_options',
+        'hoy-brightcove-importer-submenu',
+        'hoy_brightcove_importer_submenu'
     );
 }
 
-
-function hoy_brightcove_importer_options_page() {
+function hoy_brightcove_importer_main() {
     if( !current_user_can( 'manage_brightcove_importer_options' ) ) {
         wp_die( 'You do not have sufficient permission to access this page.' );
     }
 
-    global $display_json;
     global $default_autoimport_frequency;
+    $options = get_option( 'hoy_brightcove_importer' );
+    date_default_timezone_set( 'America/Chicago' );
+    ?>
+<div class="wrap">
+    <div id="icon-options-general" class="icon32"></div>
+    <h2><?php _e( 'Hoy Brightcove Media Importer Plugin', 'hoy-brightcove-importer' ); ?></h2>
+        <form name="hoy_brightcove_importer_import_videos" method="post" action="admin-post.php">
+            <input type="hidden" name="action" value="process_hoy_brightcove_importer_admin" />
+            <input type="hidden" name="hoy_brightcove_importer_import_videos_do_it" value="y" />
+            <?php wp_nonce_field( 'hoy_brightcove_importer' ); ?>
+            <p>
+                <input class="button-primary" type="submit" name="hoy_brightcove_importer_import_videos_submit" value="Get Videos" />
+            </p>
+        </form>
+
+<?php $imported_videos = $options['hoy_brightcove_importer_imported_videos']; ?>
+        <h3>
+            <span><?php _e( 'Imported Brightcove Videos', 'hoy-brightcove-importer' ); ?> (<?php echo count( $imported_videos ); ?>)</span>
+        </h3>
+        <span><?php _e( 'Last Import:', 'hoy-brightcove-importer' ); ?> <?php
+            if( $options['hoy_brightcove_importer_last_imported'] == 0) {
+                _e( 'Never', 'hoy-brightcove-importer' );
+            } else {
+                echo date( 'r T', (int) $options['hoy_brightcove_importer_last_imported'] );
+            } ?></span>
+<?php if ( count( $imported_videos ) > 0 ) : ?>
+            <table id="imported_videos" class="display">
+                <thead>
+                    <tr>
+                        <th><?php _e( 'Thumbnail', 'hoy-brightcove-importer' ); ?></th>
+                        <th><?php _e( 'Name', 'hoy-brightcove-importer' ); ?></th>
+                        <th><?php _e( 'Tags', 'hoy-brightcove-importer' ); ?></th>
+                        <th><?php _e( 'Last Modified', 'hoy-brightcove-importer' ); ?></th>
+                        <th><?php _e( 'View', 'hoy-brightcove-importer' ); ?></th>
+                        <th><?php _e( 'Edit', 'hoy-brightcove-importer' ); ?></th>
+                    </tr>
+                </thead>
+                <tbody>
+<?php for( $i = 0; $i < count( $imported_videos ); $i++ ): ?>
+<?php 
+$video = $imported_videos[$i]['video'];
+$new_post = $imported_videos[$i]['post'];
+?>
+                    <tr>
+                        <td><div style="max-width: 120px;"><img style="width: 100%;" src="<?php echo $video['thumbnailURL']; ?>"></div></td>
+                        <td><?php echo $video['name']; ?></td>
+                        <td><?php echo implode( ', ', $video['tags'] ); ?></td>
+                        <td><?php echo date( 'c', (int) ( $video['lastModifiedDate'] / 1000.0 ) ); ?></td>
+                        <td>
+                            <?php if ( $new_post ) : ?>
+                                <a href="<?php echo get_permalink( $new_post['id'] ); ?>"><?php _e( 'View', 'hoy-brightcove-importer' ); ?></a>
+                            <?php else: ?>
+                                <?php _e( 'Not imported!', 'hoy-brightcove-importer' ); ?>
+                            <?php endif; ?>
+                        </td>
+                        <td>
+                            <?php if ( $new_post ) : ?>
+                                <a href="<?php echo get_edit_post_link( $new_post['id'] ); ?>"><?php _e('Edit', 'hoy-brightcove-importer'); ?></a>
+                            <?php else: ?>
+                                <?php _e( 'Not imported!', 'hoy-brightcove-importer' ); ?>
+                            <?php endif; ?>
+                        </td>
+                    </tr>
+<?php endfor; ?>
+                </tbody>
+            </table>
+<?php endif; ?><!-- // if ( count( $hoy_brightcove_importer_imported_videos ) > 0 ) -->
+</div> <!-- .wrap -->
+<script>
+(function($) {
+    $(document).ready(function() {
+        // column index 3 (4th column) is Date and we want newest on top
+        $('#imported_videos').DataTable({
+            "order": [ [ 3, 'desc' ] ]
+        });
+    });
+})(jQuery);
+</script>
+    <?php
+}
+
+function process_hoy_brightcove_importer_admin() {
+    if( !current_user_can( 'manage_brightcove_importer_options' ) ) {
+        wp_die( 'You do not have sufficient permission to access this page.' );
+    }
+
+    check_admin_referer( 'hoy_brightcove_importer' );
+
+    if( isset( $_POST['hoy_brightcove_importer_import_videos_submit'] ) ) {
+        hoy_brightcove_importer_fetch_new_videos();
+        hoy_brightcove_importer_import_new_videos();
+    }
+
+    wp_redirect( add_query_arg( 'page', 
+                                'hoy-brightcove-importer-main-menu',
+                                admin_url( 'admin.php' ) ) );
+
+    exit;
+}
+
+function hoy_brightcove_importer_submenu() {
+    if( !current_user_can( 'manage_brightcove_importer_options' ) ) {
+        wp_die( 'You do not have sufficient permission to access this page.' );
+    }
 
     $options = get_option( 'hoy_brightcove_importer' );
-
-    if( isset( $_POST['hoy_brightcove_importer_reset_options_form_submitted'] ) ) {
-        $hidden_field = esc_html( $_POST['hoy_brightcove_importer_reset_options_form_submitted'] );
-
-        if( $hidden_field == 'Y' ) {
-            delete_option( 'hoy_brightcove_importer' );
-        }
-    }
-    if( isset( $_POST['hoy_brightcove_importer_api_key_form_submitted'] ) ) {
-        $hidden_field = esc_html( $_POST['hoy_brightcove_importer_api_key_form_submitted'] );
-
-        if( $hidden_field == 'Y' ) {
-            $hoy_brightcove_importer_api_key = esc_html( $_POST['hoy_brightcove_importer_api_key'] );
-
-            $options['hoy_brightcove_importer_api_key'] = $hoy_brightcove_importer_api_key;
-
-            update_option( 'hoy_brightcove_importer', $options );
-        }
-    } elseif( isset( $_POST['hoy_brightcove_importer_update_videos_form_submitted'] ) ) {
-        $hidden_field = esc_html( $_POST['hoy_brightcove_importer_update_videos_form_submitted'] );
-
-        if( $hidden_field == 'Y' ) {
-            hoy_brightcove_importer_fetch_new_videos();
-        }
-    } elseif( isset( $_POST['hoy_brightcove_importer_create_posts_form_submitted'] ) ) {
-        $hidden_field = esc_html( $_POST['hoy_brightcove_importer_create_posts_form_submitted'] );
-
-        if( $hidden_field == 'Y' ) {
-            hoy_brightcove_importer_import_new_videos();
-        }
-    }
-
-    if( $options != '' ) {
-        $hoy_brightcove_importer_api_key = $options['hoy_brightcove_importer_api_key'];
-        $hoy_brightcove_importer_imported_videos = $options['hoy_brightcove_importer_imported_videos'];
-        $hoy_brightcove_importer_new_videos = $options['hoy_brightcove_importer_new_videos'];
-        $hoy_brightcove_importer_last_updated = $options['hoy_brightcove_importer_last_updated'];
-        $hoy_brightcove_importer_last_imported = $options['hoy_brightcove_importer_last_imported'];
-        $hoy_brightcove_importer_ready_tag = $options['hoy_brightcove_importer_ready_tag'];
-    }
-
-
-    require( 'inc/options-page-wrapper.php' );
+    ?>
+<div class="wrap">
+    <h3><span><?php _e( "Let's get started!", 'hoy-brightcove-importer' ); ?></span></h3>
+    <div class="inside">
+        <form name="hoy_brightcove_importer_api_key_form" method="post" action="admin-post.php">
+            <input type="hidden" name="action" value="save_hoy_brightcove_importer_options" />
+            <?php wp_nonce_field( 'hoy_brightcove_importer' ); ?>
+            <table class="form-table">
+                <tr valign="top">
+                    <td scope="row">
+                        <label for="hoy_brightcove_importer_api_key"><?php _e( 'Brightcove Media API Key'); ?></label>
+                    </td>
+                    <td>
+                        <input name="hoy_brightcove_importer_api_key" id="hoy_brightcove_importer_api_key" type="text" value="<?php echo $options['hoy_brightcove_importer_api_key']; ?>" class="regular-text" />
+                    </td>
+                </tr>
+            </table>
+            <p> 
+                <input class="button-primary" type="submit" name="hoy_brightcove_importer_api_key_form_submit" value="<?php _e( 'Save', 'hoy-brightcove-importer' ); ?>" /> 
+            </p>
+        </form>
+    </div> <!-- .inside -->
+</div> <!-- .wrap -->
+    <?php
 }
+
+function process_hoy_brightcove_importer_options() {
+    if( !current_user_can( 'manage_brightcove_importer_options' ) ) {
+        wp_die( 'You do not have sufficient permission to access this page.' );
+    }
+
+    check_admin_referer( 'hoy_brightcove_importer' );
+
+    $options = get_option( 'hoy_brightcove_importer' );
+    if( isset( $_POST['hoy_brightcove_importer_api_key'] ) ) {
+        $options['hoy_brightcove_importer_api_key'] = sanitize_text_field( $_POST['hoy_brightcove_importer_api_key'] );
+        update_option( 'hoy_brightcove_importer', $options );
+    }
+
+    wp_redirect( add_query_arg( 'page', 
+                                'hoy-brightcove-importer-submenu',
+                                admin_url( 'admin.php' ) ) );
+
+    exit;
+}
+
 
 /*
 

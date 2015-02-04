@@ -3,62 +3,11 @@
  * Plugin Name: Hoy Brightcove Importer Plugin
  * Plugin URI: http://vivelohoy.com/
  * Description: Imports Brightcove videos as individual posts.
- * Version: 1.1.0
+ * Version: 1.2.0
  * Author: Nick Bennett
  * Author URI: http://twitter.com/yoyoohrho
  * License: MIT
  */
-
-/*
-
- SSSSS   CCCCC  HH   HH EEEEEEE DDDDD   UU   UU LL      IIIII NN   NN   GGGG
-SS      CC    C HH   HH EE      DD  DD  UU   UU LL       III  NNN  NN  GG  GG
- SSSSS  CC      HHHHHHH EEEEE   DD   DD UU   UU LL       III  NN N NN GG
-     SS CC    C HH   HH EE      DD   DD UU   UU LL       III  NN  NNN GG   GG
- SSSSS   CCCCC  HH   HH EEEEEEE DDDDDD   UUUUU  LLLLLLL IIIII NN   NN  GGGGGG
-
-
-ww      ww pp pp            cccc rr rr   oooo  nn nnn
-ww      ww ppp  pp _____  cc     rrr  r oo  oo nnn  nn
- ww ww ww  pppppp         cc     rr     oo  oo nn   nn
-  ww  ww   pp              ccccc rr      oooo  nn   nn
-           pp
-
-This autoimport frequency is the keyword used by wp-cron to indicate how
-frequently it should be run. This is one of a limited set of keywords:
-hourly, twicedaily, and daily.
-
-More information here:
-https://developer.wordpress.org/plugins/cron/understanding-wp-cron-scheduling/
-
-*/
-function hoy_brightcove_importer_add_cron_interval( $schedules ) {
-    $schedules['five_minutes'] = array(
-            'interval'  => 300,
-            'display'   => esc_html__( 'Every Five Minutes' ),
-        );
-
-    return $schedules;
-}
-add_filter( 'cron_schedules', 'hoy_brightcove_importer_add_cron_interval' );
-$default_autoimport_frequency = 'five_minutes';
-
-function hoy_brightcove_importer_cron_exec() {
-    hoy_brightcove_importer_fetch_new_videos();
-    hoy_brightcove_importer_import_new_videos();
-}
-add_action( 'hoy_brightcove_importer_cron_hook', 'hoy_brightcove_importer_cron_exec' );
-
-/*
-
-Scheduling this to be done on a regular basis with wp-cron.
-https://developer.wordpress.org/plugins/cron/understanding-wp-cron-scheduling/
-
-*/
-
-if( !wp_next_scheduled( 'hoy_brightcove_importer_cron_hook' ) ) {
-    wp_schedule_event( time(), $default_autoimport_frequency, 'hoy_brightcove_importer_cron_hook' );
-}
 
 
 /*
@@ -101,10 +50,6 @@ function hoy_brightcove_importer_uninstall() {
     global $wp_roles;
     $wp_roles->remove_cap( 'administrator', 'manage_brightcove_importer_options' );
     $wp_roles->remove_cap( 'editor', 'manage_brightcove_importer_options' );
-
-    // Unschedule the wp-cron jobs
-    $timestamp = wp_next_scheduled( 'hoy_brightcove_importer_cron_hook' );
-    wp_unschedule_event( $timestamp, 'hoy_brightcove_importer_cron_hook' );
 }
 
 function hoy_brightcove_importer_deactivation() {
@@ -114,10 +59,6 @@ function hoy_brightcove_importer_deactivation() {
     global $wp_roles;
     $wp_roles->remove_cap( 'administrator', 'manage_brightcove_importer_options' );
     $wp_roles->remove_cap( 'editor', 'manage_brightcove_importer_options' );
-
-    // Unschedule the wp-cron jobs
-    $timestamp = wp_next_scheduled( 'hoy_brightcove_importer_cron_hook' );
-    wp_unschedule_event( $timestamp, 'hoy_brightcove_importer_cron_hook' );
 }
 
 function hoy_brightcove_importer_activation() {
@@ -237,7 +178,6 @@ function hoy_brightcove_importer_main() {
         wp_die( 'You do not have sufficient permission to access this page.' );
     }
 
-    global $default_autoimport_frequency;
     $options = get_option( 'hoy_brightcove_importer' );
     date_default_timezone_set( 'America/Chicago' );
     ?>

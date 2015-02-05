@@ -234,7 +234,7 @@ $video = $imported_videos[$i]['video'];
 $new_post = $imported_videos[$i]['post'];
 ?>
                     <tr>
-                        <td><?php echo get_the_post_thumbnail( $new_post['id'], 'thumbnail' ); ?></td>
+                        <td><?php echo get_the_post_thumbnail( $new_post['id'], array( 100, 100 ) ); ?></td>
                         <td><?php echo $video['name']; ?></td>
                         <td><?php echo implode( ', ', $video['tags'] ); ?></td>
                         <td><?php echo date( 'c', (int) ( $video['lastModifiedDate'] / 1000.0 ) ); ?></td>

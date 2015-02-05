@@ -29,6 +29,18 @@ if( !defined( 'HOY_BRIGHTCOVE_IMPORTER_URL' ) ) {
 
 /*
 
+IIIII NN   NN  CCCCC  LL      UU   UU DDDDD   EEEEEEE  SSSSS
+ III  NNN  NN CC    C LL      UU   UU DD  DD  EE      SS
+ III  NN N NN CC      LL      UU   UU DD   DD EEEEE    SSSSS
+ III  NN  NNN CC    C LL      UU   UU DD   DD EE           SS
+IIIII NN   NN  CCCCC  LLLLLLL  UUUUU  DDDDDD  EEEEEEE  SSSSS
+
+*/
+
+require_once( HOY_BRIGHTCOVE_IMPORTER_DIR . '/lib/WP_Logging.php' );
+
+/*
+
 IIIII NN   NN IIIII TTTTTTT
  III  NNN  NN  III    TTT
  III  NN N NN  III    TTT
@@ -217,7 +229,7 @@ function hoy_brightcove_importer_main() {
                 </thead>
                 <tbody>
 <?php for( $i = 0; $i < count( $imported_videos ); $i++ ): ?>
-<?php 
+<?php
 $video = $imported_videos[$i]['video'];
 $new_post = $imported_videos[$i]['post'];
 ?>
@@ -236,7 +248,32 @@ $new_post = $imported_videos[$i]['post'];
 <?php endfor; ?>
                 </tbody>
             </table>
-<?php endif; ?><!-- // if ( count( $hoy_brightcove_importer_imported_videos ) > 0 ) -->
+<?php endif; ?><!-- // if ( count( $imported_videos ) > 0 ) -->
+
+    <h3>Import Logs</h3>
+<?php
+    $logs = WP_Logging::get_logs( array( 0, 'event' ) );
+?>
+<?php if( $logs ): ?>
+    <table id="import_logs" class="display">
+        <thead>
+            <th>Date</th>
+            <th>Title</th>
+            <th>Message</th>
+        </thead>
+        <tbody>
+<?php foreach( $logs as $log ): ?>
+        <tr>
+            <td><?php echo $log->post_date; ?></td>
+            <td><?php echo $log->post_title; ?></td>
+            <td><?php echo $log->post_content; ?></td>
+        </tr>
+<?php endforeach; ?>
+        </tbody>
+    </table>
+<?php else: ?>
+    No logs.
+<?php endif; ?>
 </div> <!-- .wrap -->
 <script>
 (function($) {
@@ -244,6 +281,9 @@ $new_post = $imported_videos[$i]['post'];
         // column index 3 (4th column) is Date and we want newest on top
         $('#imported_videos').DataTable({
             "order": [ [ 3, 'desc' ] ]
+        });
+        $('#import_logs').DataTable({
+            "order": [ [ 0, 'desc' ] ]
         });
     });
 })(jQuery);
@@ -263,7 +303,7 @@ function process_hoy_brightcove_importer_admin() {
         hoy_brightcove_importer_import_new_videos();
     }
 
-    wp_redirect( add_query_arg( 'page', 
+    wp_redirect( add_query_arg( 'page',
                                 'hoy-brightcove-importer-main-menu',
                                 admin_url( 'admin.php' ) ) );
 
@@ -293,8 +333,8 @@ function hoy_brightcove_importer_submenu() {
                     </td>
                 </tr>
             </table>
-            <p> 
-                <input class="button-primary" type="submit" name="hoy_brightcove_importer_api_key_form_submit" value="<?php _e( 'Save', 'hoy-brightcove-importer' ); ?>" /> 
+            <p>
+                <input class="button-primary" type="submit" name="hoy_brightcove_importer_api_key_form_submit" value="<?php _e( 'Save', 'hoy-brightcove-importer' ); ?>" />
             </p>
         </form>
     </div> <!-- .inside -->
@@ -315,7 +355,7 @@ function process_hoy_brightcove_importer_options() {
         update_option( 'hoy_brightcove_importer', $options );
     }
 
-    wp_redirect( add_query_arg( 'page', 
+    wp_redirect( add_query_arg( 'page',
                                 'hoy-brightcove-importer-submenu',
                                 admin_url( 'admin.php' ) ) );
 
@@ -402,6 +442,13 @@ function hoy_brightcove_importer_fetch_new_videos() {
     $options['hoy_brightcove_importer_new_videos'] = $new_videos;
     $options['hoy_brightcove_importer_last_updated'] = time();
 
+    $title = 'Brightcove API';
+    $message = 'Fetched ' . count( $all_videos ) . ' videos from Brightcove, ' . count( $new_videos ) . ' of which are new.';
+    $parent = 0;
+    $type = 'event';
+
+    $log_entry = WP_Logging::add( $title, $message, $parent, $type );
+
     update_option( 'hoy_brightcove_importer', $options );
 }
 
@@ -445,13 +492,20 @@ function hoy_brightcove_importer_attach_image_to_post( $image_url, $post_id ) {
     $attach_data = wp_generate_attachment_metadata( $attach_id, $file );
     wp_update_attachment_metadata( $attach_id, $attach_data );
 
+    $title = 'New Image';
+    $message = 'Fetched ' . $image_url . ' and attached to post ID ' . $post_id;
+    $parent = 0;
+    $type = 'event';
+
+    $log_entry = WP_Logging::add( $title, $message, $parent, $type )
+
     return $attach_id;
 }
 
 
 function hoy_brightcove_importer_import_video( $video ) {
     /*
-    
+
     $video contains data on the video directly from the Brightcove Media API
 
     @returns: an array containing information about the new post, at least with an 'id' key with the value
@@ -517,8 +571,22 @@ function hoy_brightcove_importer_import_video( $video ) {
         update_post_meta( $post_id, '_brightcove_video_id', $video_id );
 
         set_post_format( $post_id, $defaults['format'] );
-    } 
+
+        $title = 'New Post';
+        $message = 'Created new post ID ' . $post_id . ' for video ID ' . $video_id;
+        $parent = 0;
+        $type = 'event';
+
+        $log_entry = WP_Logging::add( $title, $message, $parent, $type );
+    }
     else {
+        $title = 'New Post';
+        $message = 'Error! Tried and failed to create post for video ID ' . $video_id;
+        $parent = 0;
+        $type = 'error';
+
+        $log_entry = WP_Logging::add( $title, $message, $parent, $type );
+
         return false;
     }
 
@@ -547,7 +615,50 @@ function hoy_brightcove_importer_import_new_videos() {
     $options['hoy_brightcove_importer_new_videos'] = array();
     $options['hoy_brightcove_importer_last_imported'] = time();
 
+    if( count( $new_videos ) > 0 ) {
+        $title = 'Import';
+        $message = 'Imported ' . count( $new_videos ) . ' new videos as posts.';
+        $parent = 0;
+        $type = 'event';
+
+        $log_entry = WP_Logging::add( $title, $message, $parent, $type );
+    } else {
+        $title = 'Import';
+        $message = 'No new videos to import.';
+        $parent = 0;
+        $type = 'event';
+
+        $log_entry = WP_Logging::add( $title, $message, $parent, $type );
+    }
     update_option( 'hoy_brightcove_importer', $options );
+}
+
+/*
+
+LL
+LL       oooo   gggggg
+LL      oo  oo gg   gg
+LL      oo  oo ggggggg
+LLLLLLL  oooo       gg
+                ggggg
+
+MM    MM         iii         tt
+MMM  MMM   aa aa     nn nnn  tt      eee  nn nnn    aa aa nn nnn    cccc   eee
+MM MM MM  aa aaa iii nnn  nn tttt  ee   e nnn  nn  aa aaa nnn  nn cc     ee   e
+MM    MM aa  aaa iii nn   nn tt    eeeee  nn   nn aa  aaa nn   nn cc     eeeee
+MM    MM  aaa aa iii nn   nn  tttt  eeeee nn   nn  aaa aa nn   nn  ccccc  eeeee
+From https://github.com/pippinsplugins/WP-Logging#pruning-logs
+*/
+
+function activate_pruning( $should_we_prune ){
+    return true;
+} // rapid_activate_pruning
+add_filter( 'wp_logging_should_we_prune', 'activate_pruning', 10 );
+
+
+$scheduled = wp_next_scheduled( 'wp_logging_prune_routine' );
+if ( $scheduled == false ){
+    wp_schedule_event( time(), 'hourly', 'wp_logging_prune_routine' );
 }
 
 

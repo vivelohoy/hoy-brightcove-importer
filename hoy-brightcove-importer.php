@@ -269,7 +269,7 @@ $new_post = $imported_videos[$i]['post'];
         <tbody>
 <?php foreach( $logs as $log ): ?>
         <tr>
-            <td><?php echo $log->post_date; ?></td>
+            <td><?php echo get_date_from_gmt( $log->post_date ); ?></td>
             <td><?php echo $log->post_title; ?></td>
             <td><?php echo $log->post_content; ?></td>
         </tr>

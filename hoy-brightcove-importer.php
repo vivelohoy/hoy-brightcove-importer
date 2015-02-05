@@ -299,6 +299,9 @@ function process_hoy_brightcove_importer_admin() {
     check_admin_referer( 'hoy_brightcove_importer' );
 
     if( isset( $_POST['hoy_brightcove_importer_import_videos_submit'] ) ) {
+        $current_user = wp_get_current_user();
+        $log_entry = WP_Logging::add( 'Admin', 'Username ' . $current_user->user_login . ' initiated a check for new videos.', 0, 'event' );
+
         hoy_brightcove_importer_fetch_new_videos();
         hoy_brightcove_importer_import_new_videos();
     }
@@ -352,6 +355,9 @@ function process_hoy_brightcove_importer_options() {
     $options = get_option( 'hoy_brightcove_importer' );
     if( isset( $_POST['hoy_brightcove_importer_api_key'] ) ) {
         $options['hoy_brightcove_importer_api_key'] = sanitize_text_field( $_POST['hoy_brightcove_importer_api_key'] );
+
+        $log_entry = WP_Logging::add( 'Settings', 'Changed API key to ' . $options['hoy_brightcove_importer_api_key'], 0, 'event' );
+
         update_option( 'hoy_brightcove_importer', $options );
     }
 
@@ -442,7 +448,7 @@ function hoy_brightcove_importer_fetch_new_videos() {
     $options['hoy_brightcove_importer_new_videos'] = $new_videos;
     $options['hoy_brightcove_importer_last_updated'] = time();
 
-    $title = 'Brightcove API';
+    $title = 'Fetch';
     $message = 'Fetched ' . count( $all_videos ) . ' videos from Brightcove, ' . count( $new_videos ) . ' of which are new.';
     $parent = 0;
     $type = 'event';
@@ -497,7 +503,7 @@ function hoy_brightcove_importer_attach_image_to_post( $image_url, $post_id ) {
     $parent = 0;
     $type = 'event';
 
-    $log_entry = WP_Logging::add( $title, $message, $parent, $type )
+    $log_entry = WP_Logging::add( $title, $message, $parent, $type );
 
     return $attach_id;
 }

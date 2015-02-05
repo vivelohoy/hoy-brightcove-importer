@@ -252,7 +252,12 @@ $new_post = $imported_videos[$i]['post'];
 
     <h3>Import Logs</h3>
 <?php
-    $logs = WP_Logging::get_logs( array( 0, 'event' ) );
+    $args = array(
+        'post_parent'       => 0,
+        'posts_per_page'    => 100,
+        'log_type'          => 'event'
+    );
+    $logs = WP_Logging::get_connected_logs( $args );
 ?>
 <?php if( $logs ): ?>
     <table id="import_logs" class="display">

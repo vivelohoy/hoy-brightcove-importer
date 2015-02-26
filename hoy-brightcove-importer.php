@@ -9,7 +9,6 @@
  * License: MIT
  */
 
-
 /*
 
 DDDDD   EEEEEEE FFFFFFF IIIII NN   NN EEEEEEE  SSSSS
@@ -82,6 +81,7 @@ function hoy_brightcove_importer_activation() {
         'hoy_brightcove_importer_last_imported'     => false,
         'hoy_brightcove_importer_ready_tag'         => 'listo',
         'base_category'                             => 'Video',
+        'import_batch_size'                         => 5,
         'tag_to_category_map'                       => array(
                 'Chicago e Illinois'            => 'Chicago e Illinois',
                 'Chicago'                       => 'Chicago e Illinois',
@@ -111,6 +111,7 @@ function hoy_brightcove_importer_activation() {
             $options[$key] = $value;
         }
     }
+    update_option( 'hoy_brightcove_importer', $options );
 
     // Check that the categories exist and create them if they don't
     // Does the base category exist?
@@ -196,13 +197,28 @@ function hoy_brightcove_importer_main() {
 <div class="wrap">
     <div id="icon-options-general" class="icon32"></div>
     <h2><?php _e( 'Hoy Brightcove Media Importer Plugin', 'hoy-brightcove-importer' ); ?></h2>
+        <form name="hoy_brightcove_importer_fetch_videos" method="post" action="admin-post.php">
+            <input type="hidden" name="action" value="process_hoy_brightcove_importer_admin" />
+            <?php wp_nonce_field( 'hoy_brightcove_importer' ); ?>
+            <p>
+                <input class="button-primary" type="submit" name="hoy_brightcove_importer_fetch_videos_submit" value="Check Brightcove for new videos" />
+            </p>
+        </form>
+        <?php if ( count( $options['hoy_brightcove_importer_new_videos'] ) > 0 ): ?>
+        <strong>
+            There are <?php echo count( $options['hoy_brightcove_importer_new_videos'] ); ?> new videos to import!
+            Hit the button below to import up to <?php echo $options['import_batch_size']; ?> of them.
+        </strong>
         <form name="hoy_brightcove_importer_import_videos" method="post" action="admin-post.php">
             <input type="hidden" name="action" value="process_hoy_brightcove_importer_admin" />
             <?php wp_nonce_field( 'hoy_brightcove_importer' ); ?>
             <p>
-                <input class="button-primary" type="submit" name="hoy_brightcove_importer_import_videos_submit" value="Get Videos" />
+                <input class="button-primary" type="submit" name="hoy_brightcove_importer_import_videos_submit" value="Import next <?php echo $options['import_batch_size']; ?> videos" />
             </p>
         </form>
+        <?php else: ?>
+        <strong>Brightcove hasn't told us about any new videos to import yet.</strong>
+        <?php endif; ?>
 
 <?php $imported_videos = $options['hoy_brightcove_importer_imported_videos']; ?>
         <h3>
@@ -249,6 +265,34 @@ $new_post = $imported_videos[$i]['post'];
             </table>
 <?php endif; ?><!-- // if ( count( $imported_videos ) > 0 ) -->
 
+<?php $new_videos = $options['hoy_brightcove_importer_new_videos']; ?>
+        <h3>
+            <span><?php _e( 'Brightcove Videos not yet imported', 'hoy-brightcove-importer' ); ?> (<?php echo count( $new_videos ); ?>)</span>
+        </h3>
+<?php if ( count( $new_videos ) > 0 ) : ?>
+            <table id="new_videos" class="display">
+                <thead>
+                    <tr>
+                        <th><?php _e( 'Name', 'hoy-brightcove-importer' ); ?></th>
+                        <th><?php _e( 'Tags', 'hoy-brightcove-importer' ); ?></th>
+                        <th><?php _e( 'Last Modified', 'hoy-brightcove-importer' ); ?></th>
+                    </tr>
+                </thead>
+                <tbody>
+<?php for( $i = 0; $i < count( $new_videos ); $i++ ): ?>
+<?php
+$video = $new_videos[$i];
+?>
+                    <tr>
+                        <td><?php echo $video['name']; ?></td>
+                        <td><?php echo implode( ', ', $video['tags'] ); ?></td>
+                        <td><?php echo date( 'c', (int) ( $video['lastModifiedDate'] / 1000.0 ) ); ?></td>
+                    </tr>
+<?php endfor; ?>
+                </tbody>
+            </table>
+<?php endif; ?><!-- // if ( count( $new_videos ) > 0 ) -->
+
     <h3>Import Logs</h3>
 <?php
     $args = array(
@@ -286,6 +330,10 @@ $new_post = $imported_videos[$i]['post'];
         $('#imported_videos').DataTable({
             "order": [ [ 3, 'desc' ] ]
         });
+        // column index 2 (3rd column) is Date for new videos
+        $('#new_videos').DataTable({
+            "order": [ [ 2, 'desc' ] ]
+        });
         $('#import_logs').DataTable({
             "order": [ [ 0, 'desc' ] ]
         });
@@ -302,11 +350,17 @@ function process_hoy_brightcove_importer_admin() {
 
     check_admin_referer( 'hoy_brightcove_importer' );
 
-    if( isset( $_POST['hoy_brightcove_importer_import_videos_submit'] ) ) {
+    if( isset( $_POST['hoy_brightcove_importer_fetch_videos_submit'] ) ) {
         $current_user = wp_get_current_user();
-        $log_entry = WP_Logging::add( 'Admin', 'Username ' . $current_user->user_login . ' initiated a check for new videos.', 0, 'event' );
+        $log_entry = WP_Logging::add( 'Admin', 'Username ' . $current_user->user_login . ' initiated a fetch of new videos from Brightcove.', 0, 'event' );
 
         hoy_brightcove_importer_fetch_new_videos();
+    }
+
+    if( isset( $_POST['hoy_brightcove_importer_import_videos_submit'] ) ) {
+        $current_user = wp_get_current_user();
+        $log_entry = WP_Logging::add( 'Admin', 'Username ' . $current_user->user_login . ' initiated an import of previously fetched videos.', 0, 'event' );
+
         hoy_brightcove_importer_import_new_videos();
     }
 
@@ -452,12 +506,7 @@ function hoy_brightcove_importer_fetch_new_videos() {
     $options['hoy_brightcove_importer_new_videos'] = $new_videos;
     $options['hoy_brightcove_importer_last_updated'] = time();
 
-    $title = 'Fetch';
-    $message = 'Fetched ' . count( $all_videos ) . ' videos from Brightcove, ' . count( $new_videos ) . ' of which are new.';
-    $parent = 0;
-    $type = 'event';
-
-    $log_entry = WP_Logging::add( $title, $message, $parent, $type );
+    $log_entry = WP_Logging::add( 'Fetch', 'Fetched ' . count( $all_videos ) . ' videos from Brightcove, ' . count( $new_videos ) . ' of which are new.', 0, 'event' );
 
     update_option( 'hoy_brightcove_importer', $options );
 }
@@ -477,6 +526,10 @@ IIIII MM    MM PP       OOOO0  RR   RR   TTT
 function hoy_brightcove_importer_attach_image_to_post( $image_url, $post_id ) {
     $upload_dir = wp_upload_dir();
     $response = wp_remote_get( $image_url );
+    if( is_wp_error( $response ) ) {
+        $log_entry = WP_Logging::add( 'New Image', 'Error retrieving image ' . $image_url, 0, 'error' );
+        return False;
+    }
     $image_data = $response['body'];
     $filename_chunks = explode( '?', basename( $image_url ) );
     $filename = $filename_chunks[0];
@@ -502,12 +555,7 @@ function hoy_brightcove_importer_attach_image_to_post( $image_url, $post_id ) {
     $attach_data = wp_generate_attachment_metadata( $attach_id, $file );
     wp_update_attachment_metadata( $attach_id, $attach_data );
 
-    $title = 'New Image';
-    $message = 'Fetched ' . $image_url . ' and attached to post ID ' . $post_id;
-    $parent = 0;
-    $type = 'event';
-
-    $log_entry = WP_Logging::add( $title, $message, $parent, $type );
+    $log_entry = WP_Logging::add( 'New Image', 'Fetched ' . $image_url . ' and attached to post ID ' . $post_id, 0, 'event' );
 
     return $attach_id;
 }
@@ -525,8 +573,8 @@ function hoy_brightcove_importer_import_video( $video ) {
     $options = get_option( 'hoy_brightcove_importer' );
 
     $defaults = array(
-        'width'             => 853,
-        'height'            => 480,
+        'width'             => 860,
+        'height'            => 484,
         'category'          => $options['base_category'],
         'author_username'   => 'brightcove',
         'status'            => 'draft',
@@ -573,29 +621,23 @@ function hoy_brightcove_importer_import_video( $video ) {
     $post_id = wp_insert_post( $post_data, $error_obj );
 
     if ( $post_id > 0 ) {
-        $thumbnail_attach_id = hoy_brightcove_importer_attach_image_to_post( $video['thumbnailURL'], $post_id );
+//        $thumbnail_attach_id = hoy_brightcove_importer_attach_image_to_post( $video['thumbnailURL'], $post_id );
         $video_still_attach_id = hoy_brightcove_importer_attach_image_to_post( $video['videoStillURL'], $post_id );
 
-        set_post_thumbnail( $post_id, $video_still_attach_id );
+        if( $video_still_attach_id ) {
+            set_post_thumbnail( $post_id, $video_still_attach_id );
+        } else {
+            $log_entry = WP_Logging::add( 'New Post', 'Unable to set a post thumbnail for ' . $post_id . ', no image downloaded.', 0, 'error' );
+        }
 
         update_post_meta( $post_id, '_brightcove_video_id', $video_id );
 
         set_post_format( $post_id, $defaults['format'] );
 
-        $title = 'New Post';
-        $message = 'Created new post ID ' . $post_id . ' for video ID ' . $video_id;
-        $parent = 0;
-        $type = 'event';
-
-        $log_entry = WP_Logging::add( $title, $message, $parent, $type );
+        $log_entry = WP_Logging::add( 'New Post', 'Created new post ID ' . $post_id . ' for video ID ' . $video_id, 0, 'event' );
     }
     else {
-        $title = 'New Post';
-        $message = 'Error! Tried and failed to create post for video ID ' . $video_id;
-        $parent = 0;
-        $type = 'error';
-
-        $log_entry = WP_Logging::add( $title, $message, $parent, $type );
+        $log_entry = WP_Logging::add( 'New Post', 'Error! Tried and failed to create post for video ID ' . $video_id, 0, 'error' );
 
         return false;
     }
@@ -610,37 +652,38 @@ function hoy_brightcove_importer_import_new_videos() {
     $imported_videos = $options['hoy_brightcove_importer_imported_videos'];
     $new_videos = $options['hoy_brightcove_importer_new_videos'];
 
+    $videos_to_import_now = array();
+    for( $i = 0; $i < $options['import_batch_size']; $i++ ) {
+        $videos_to_import_now[] = array_pop( $new_videos );
+    }
+    $options['hoy_brightcove_importer_new_videos'] = $new_videos;
+    update_option( 'hoy_brightcove_importer', $options );
+
     // For each video in the queue of fresh videos that have not yet been imported,
     // create a post and then add the video to the list of imported videos
-    foreach( $new_videos as $index => $new_video ) {
+    foreach( $videos_to_import_now as $index => $new_video ) {
         $new_post = hoy_brightcove_importer_import_video( $new_video );
 
-        // Store the original video info from the Brightcove API along with information
-        // on the corresponding new post
-        $imported_video = array( 'video' => $new_video, 'post' => $new_post );
-        $imported_videos[] = $imported_video;
+        if( $new_post ) {
+            // Store the original video info from the Brightcove API along with information
+            // on the corresponding new post
+            $imported_video = array( 'video' => $new_video, 'post' => $new_post );
+            $imported_videos[] = $imported_video;
+            $options['hoy_brightcove_importer_imported_videos'] = $imported_videos;
+            $options['hoy_brightcove_importer_last_imported'] = time();
+        } else {
+            // The import was unsuccessful, put this video back on the list of new videos not imported yet
+            $new_videos[] = $new_video;
+            $options['hoy_brightcove_importer_new_videos'] = $new_videos;
+        }
+        update_option( 'hoy_brightcove_importer', $options );
     }
 
-    $options['hoy_brightcove_importer_imported_videos'] = $imported_videos;
-    $options['hoy_brightcove_importer_new_videos'] = array();
-    $options['hoy_brightcove_importer_last_imported'] = time();
-
-    if( count( $new_videos ) > 0 ) {
-        $title = 'Import';
-        $message = 'Imported ' . count( $new_videos ) . ' new videos as posts.';
-        $parent = 0;
-        $type = 'event';
-
-        $log_entry = WP_Logging::add( $title, $message, $parent, $type );
+    if( count( $videos_to_import_now ) > 0 ) {
+        $log_entry = WP_Logging::add( 'Import', 'Attempted to import ' . count( $videos_to_import_now ) . ' new videos as posts.', 0, 'event' );
     } else {
-        $title = 'Import';
-        $message = 'No new videos to import.';
-        $parent = 0;
-        $type = 'event';
-
-        $log_entry = WP_Logging::add( $title, $message, $parent, $type );
+        $log_entry = WP_Logging::add( 'Import', 'No new videos to import.', 0, 'event' );
     }
-    update_option( 'hoy_brightcove_importer', $options );
 }
 
 /*
@@ -657,6 +700,7 @@ MMM  MMM   aa aa     nn nnn  tt      eee  nn nnn    aa aa nn nnn    cccc   eee
 MM MM MM  aa aaa iii nnn  nn tttt  ee   e nnn  nn  aa aaa nnn  nn cc     ee   e
 MM    MM aa  aaa iii nn   nn tt    eeeee  nn   nn aa  aaa nn   nn cc     eeeee
 MM    MM  aaa aa iii nn   nn  tttt  eeeee nn   nn  aaa aa nn   nn  ccccc  eeeee
+
 From https://github.com/pippinsplugins/WP-Logging#pruning-logs
 */
 

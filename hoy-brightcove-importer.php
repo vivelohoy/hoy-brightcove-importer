@@ -198,7 +198,6 @@ function hoy_brightcove_importer_main() {
     <h2><?php _e( 'Hoy Brightcove Media Importer Plugin', 'hoy-brightcove-importer' ); ?></h2>
         <form name="hoy_brightcove_importer_import_videos" method="post" action="admin-post.php">
             <input type="hidden" name="action" value="process_hoy_brightcove_importer_admin" />
-            <input type="hidden" name="hoy_brightcove_importer_import_videos_do_it" value="y" />
             <?php wp_nonce_field( 'hoy_brightcove_importer' ); ?>
             <p>
                 <input class="button-primary" type="submit" name="hoy_brightcove_importer_import_videos_submit" value="Get Videos" />

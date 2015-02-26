@@ -653,34 +653,32 @@ function hoy_brightcove_importer_import_new_videos() {
     $new_videos = $options['hoy_brightcove_importer_new_videos'];
 
     $videos_to_import_now = array();
-    for( $i = 0; $i < $options['import_batch_size']; $i++ ) {
+    $batch_size = ( $options['import_batch_size'] > count( $new_videos ) ? count( $new_videos ) : $options['import_batch_size'] );
+    for( $i = 0; $i < $batch_size; $i++ ) {
         $videos_to_import_now[] = array_pop( $new_videos );
     }
     $options['hoy_brightcove_importer_new_videos'] = $new_videos;
     update_option( 'hoy_brightcove_importer', $options );
 
-    // For each video in the queue of fresh videos that have not yet been imported,
-    // create a post and then add the video to the list of imported videos
+    $count_videos_actually_imported = 0;
     foreach( $videos_to_import_now as $index => $new_video ) {
         $new_post = hoy_brightcove_importer_import_video( $new_video );
 
         if( $new_post ) {
-            // Store the original video info from the Brightcove API along with information
-            // on the corresponding new post
             $imported_video = array( 'video' => $new_video, 'post' => $new_post );
             $imported_videos[] = $imported_video;
             $options['hoy_brightcove_importer_imported_videos'] = $imported_videos;
             $options['hoy_brightcove_importer_last_imported'] = time();
+            $count_videos_actually_imported += 1;
         } else {
-            // The import was unsuccessful, put this video back on the list of new videos not imported yet
             $new_videos[] = $new_video;
             $options['hoy_brightcove_importer_new_videos'] = $new_videos;
         }
         update_option( 'hoy_brightcove_importer', $options );
     }
 
-    if( count( $videos_to_import_now ) > 0 ) {
-        $log_entry = WP_Logging::add( 'Import', 'Attempted to import ' . count( $videos_to_import_now ) . ' new videos as posts.', 0, 'event' );
+    if( $count_videos_actually_imported > 0 ) {
+        $log_entry = WP_Logging::add( 'Import', 'Imported ' . $count_videos_actually_imported . ' new videos as posts.', 0, 'event' );
     } else {
         $log_entry = WP_Logging::add( 'Import', 'No new videos to import.', 0, 'event' );
     }

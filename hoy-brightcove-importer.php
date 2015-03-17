@@ -584,7 +584,7 @@ function hoy_brightcove_importer_import_video( $video ) {
 
     $video_id = $video['id'];
 
-    $post_title = sprintf( 'Video: %1$s',
+    $post_title = sprintf( '%1$s',
                             wp_strip_all_tags( $video['name'] ) );
 
     $post_excerpt = $video['shortDescription'];
